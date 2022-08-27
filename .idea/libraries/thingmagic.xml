@@ -1,0 +1,10 @@
+<component name="libraryTable">
+  <library name="thingmagic">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/src/com/thingmagic/BluetoothAndroid.jar!/" />
+      <root url="jar://$PROJECT_DIR$/src/com/thingmagic/BluetoothWindows.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>
