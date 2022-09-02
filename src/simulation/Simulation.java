@@ -15,6 +15,8 @@ import java.util.ArrayList;
 import org.apache.commons.lang3.tuple.Pair;
 import utils.MyUtils;
 
+import static myMain.myGUI_track.myGUI_track;
+
 /**
  * 仿真测试类，用于评估系统的各项性能。
  *
@@ -31,9 +33,11 @@ public class Simulation {
             for (int j = 0; j < 3; j++) {
                 lists[i][j] = new ArrayList<>();
             }
-        }
+        } //初始化List
+
+
         HMM hmm = new HMM();
-        for (int t = 0; t < 10; t++) {
+        for (int t = 0; t < 10; t++) { //为什么要循环10次？
             hmm.clear();
             int i = 0;
             ArrayList<StateStamp> g = shape.generate();
@@ -41,14 +45,16 @@ public class Simulation {
                 double ph = genPhase(s.getStateVector().get(0, 0), s.getStateVector().get(1, 0), i);//获得相位值，i是天线标号
                 TagData td = new TagData(i, s.getTime(), ph);
                 hmm.add(td);
-                i = (i + 1) % Config.getK();
-            }
+                i = (i + 1) % Config.getK(); //TODO 每次都运行一遍浪费效率
+            }//TODO 不能在同一时间测量吗？
             ArrayList<Pair<Double, Double>> tr = hmm.getTrajectory();
             ArrayList<Pair<Double, Double>> v = hmm.getVelocity();
             if (tr == null) {
                 t--;
                 continue;
             }
+
+            myGUI_track(tr);
             for (int k = 0; k < g.size(); k++) {
                 Matrix e = getError(tr.get(k), v.get(k), g.get(k).getStateVector());
                 for (i = 0; i < 2; i++) {
@@ -85,7 +91,6 @@ public class Simulation {
         double phase;
         phase = random.nextGaussian(d * Math.PI / Config.getSemiLambda(), sigma);
         phase = phase - Math.floor(phase / Math.PI) * Math.PI;
-        //TODO 为什么要这样子，难道检测不了一个2*PI周期吗？
         return phase;
     }
 

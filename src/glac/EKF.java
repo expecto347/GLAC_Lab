@@ -227,6 +227,7 @@ class EKF implements Comparable<EKF>, Cloneable {
         w *= MyUtils.getNormalDistribution(0, Config.getSigmaP(), MyUtils.dist(s1.getStateVector().get(0, 0), s1.getStateVector().get(1, 0),
                 s0.getStateVector().get(0, 0) + timestep * s0.getStateVector().get(2, 0),
                 s0.getStateVector().get(1, 0) + timestep * s0.getStateVector().get(3, 0)));//使用距离的估计进行加权
+        //TODO 多写几句会死啊？真不把人当人看了？这括号套括号谁看得明白啊
         w *= MyUtils.getNormalDistribution(0, Config.getSigmaV(), MyUtils.dist(s0.getStateVector().get(2, 0), s0.getStateVector().get(3, 0),
                 s1.getStateVector().get(2, 0), s1.getStateVector().get(3, 0)));//使用速度变化进行加权
         return w * this.weight;

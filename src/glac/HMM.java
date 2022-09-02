@@ -47,7 +47,7 @@ public class HMM {
     }
 
     /**
-     * 向HMM提供新的观测<br>
+     * 向HMM提供新的观测
      * Provide new tag reading to HMM
      *
      * @param td 标签观测(Tag reading)
@@ -104,7 +104,7 @@ public class HMM {
      */
     private double getProjectedVelocity(TagData p1, TagData p2) {
         double ph1 = p1.getPhase(), ph2 = unwrap(ph1, p2.getPhase());
-        double timestep = (p2.getTime() - p1.getTime()) * 0.001;
+        double timestep = (p2.getTime() - p1.getTime()) * 0.001; //0.001单位转换
         double diff = (ph1 - ph2) / Math.PI * Config.getSemiLambda();//注意，这是往返的距离差
         return diff / (2 * timestep);
     }
@@ -134,7 +134,7 @@ public class HMM {
                 if (i == j) {
                     continue;
                 }
-                temp = temp * (t - x[j]) / (x[i] - x[j]);
+                temp = temp * (t - x[j]) / (x[i] - x[j]); //拉格朗日插值法
             }
             f += temp;
         }
