@@ -92,7 +92,7 @@ public class MyChart {
 
         dataset.addSeries(createXYSeries("track", x, y));
 
-        JFreeChart chart = ChartFactory.createXYLineChart(title, "X (cm)", "Y (cm)", dataset);
+        JFreeChart chart = ChartFactory.createScatterPlot(title, "x", "y", dataset);
         ChartPanel chartPanel = new ChartPanel(chart);
         chart.getXYPlot().getDomainAxis().setUpperBound(max_x);
         chart.getXYPlot().getDomainAxis().setLowerBound(min_x);//设置X轴范围

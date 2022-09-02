@@ -37,7 +37,7 @@ public class Simulation {
 
 
         HMM hmm = new HMM();
-        for (int t = 0; t < 10; t++) { //为什么要循环10次？
+        for (int t = 0; t < 10; t++) {
             hmm.clear();
             int i = 0;
             ArrayList<StateStamp> g = shape.generate();
@@ -54,7 +54,10 @@ public class Simulation {
                 continue;
             }
 
-            myGUI_track(tr);
+            if(t == 0){
+                myGUI_track(tr); //只想画一次轨迹图
+            }
+
             for (int k = 0; k < g.size(); k++) {
                 Matrix e = getError(tr.get(k), v.get(k), g.get(k).getStateVector());
                 for (i = 0; i < 2; i++) {

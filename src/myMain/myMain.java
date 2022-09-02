@@ -5,6 +5,7 @@ import java.util.Scanner;
 import simulation.Simulation;
 import simulation.Circle;
 import simulation.Line;
+import simulation.Triangle;
 import utils.MyChart;
 
 public class myMain {
@@ -12,7 +13,7 @@ public class myMain {
         System.out.println("Please enter the number before the shape you want to simulate:");
         System.out.println("1. Line");
         System.out.println("2. Circle");
-        System.out.println("3. Rectangle");
+        System.out.println("3. Triangle");
 
         int shape = new Scanner(System.in).nextInt();
         //Wait the input
@@ -48,11 +49,23 @@ public class myMain {
                 results = Simulation.track(circle);
                 break;
             case 3:
-                System.out.println("You have chosen the rectangle.");
+                System.out.println("You have chosen the Triangle.");
+                System.out.println("Please enter the length(cm):");
+                double length = new Scanner(System.in).nextDouble();
+
+                System.out.println("Please enter the velocity(cm/s):");
+                double velocity2 = new Scanner(System.in).nextDouble();
+
+                System.out.println("Please enter the time(ms):");
+                long time2 = new Scanner(System.in).nextLong();
+
+                Triangle triangle = new Triangle(length, velocity2, time2);
+
+                results = Simulation.track(triangle);
                 break;
             default:
                 System.out.println("You have chosen an invalid shape.");
-                break;
+                return;
         }
         myGUI.myGUI(results);
     }
