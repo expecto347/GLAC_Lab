@@ -53,10 +53,11 @@ public class Simulation {
                 t--;
                 continue;
             }
-
+/*
             if(t == 0){
                 myGUI_track(tr); //只想画一次轨迹图
             }
+ */
 
             for (int k = 0; k < g.size(); k++) {
                 Matrix e = getError(tr.get(k), v.get(k), g.get(k).getStateVector());
@@ -86,14 +87,15 @@ public class Simulation {
      *
      * @param x 标签X坐标
      * @param y 标签Y坐标
+     * @param z 标签Z坐标
      * @param ano 天线标号
      * @return 相位
      */
-    private static double genPhase(double x, double y, int ano) {
-        double d = -MyUtils.dist(x, y, Config.getX(ano), Config.getY(ano)) * 2; //两倍的天线和tag的距离，负号的作用
+    private static double genPhase(double x, double y, double z, int ano) {
+        double d = -MyUtils.dist(x, y, z, Config.getX(ano), Config.getY(ano), Config.getZ(ano)) * 2; //两倍的天线和tag的距离，负号的作用
         double phase;
         phase = random.nextGaussian(d * Math.PI / Config.getSemiLambda(), sigma);
-        phase = phase - Math.floor(phase / Math.PI) * Math.PI;
+        phase = phase - Math.floor(phase / Math.PI) * Math.PI; //mod pi
         return phase;
     }
 

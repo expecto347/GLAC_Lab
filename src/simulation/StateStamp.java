@@ -12,6 +12,10 @@ import Jama.Matrix;
  * 状态向量是一个4*1矩阵，元素分别代表x方向位置、y方向位置、x方向速度、y方向速度。
  *
  * @author Wang
+ *
+ * 扩展到3D，我们增加z方向位置和z方向速度
+ *
+ * @author Sun
  */
 public class StateStamp {
 
