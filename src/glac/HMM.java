@@ -104,7 +104,7 @@ public class HMM {
      */
     private double getProjectedVelocity(TagData p1, TagData p2) {
         double ph1 = p1.getPhase(), ph2 = unwrap(ph1, p2.getPhase());
-        double timestep = (p2.getTime() - p1.getTime()) * 0.001; //0.001单位转换
+        double timestep = (p2.getTime() - p1.getTime()); //我们采用国际标准单位
         double diff = (ph1 - ph2) / Math.PI * Config.getSemiLambda();//注意，这是往返的距离差
         return diff / (2 * timestep);
     }
@@ -184,13 +184,17 @@ public class HMM {
         for (int a1 = 0; a1 < k; a1++) {//天线1
             for (int a2 = a1 + 1; a2 < k; a2++) {//天线2
                 for (int a3 = a2 + 1; a3 < k; a3++) {//天线3
-                    for (int s1 = 0; s1 <= Config.getMaxS(); s1++) {//天线1对应的整数波长
-                        for (int s2 = 0; s2 <= Config.getMaxS(); s2++) {//天线2对应的整数波长
-                            for (int s3 = 0; s3 <= Config.getMaxS(); s3++) {//天线3对应的整数波长
-                                Pair<Double, Double> p = Trilateration.estimate(a1, a2, a3, observeDis[a1] + s1 * Config.getSemiLambda(),
-                                        observeDis[a2] + s2 * Config.getSemiLambda(), observeDis[a3] + s3 * Config.getSemiLambda());
-                                if (p != null) {
-                                    initPos.add(p);
+                    for (int a4 = a3 + 1; a4 < k; a4++) {//天线4
+                        for (int s1 = 0; s1 <= Config.getMaxS(); s1++) {//天线1对应的整数波长
+                            for (int s2 = 0; s2 <= Config.getMaxS(); s2++) {//天线2对应的整数波长
+                                for (int s3 = 0; s3 <= Config.getMaxS(); s3++) {//天线3对应的整数波长
+                                    for (int s4 = 0; s4 <= Config.getMaxS(); s4++) {//天线4对应的整数波长
+                                        Pair<Double, Double> p = Trilateration.estimate(a1, a2, a3, observeDis[a1] + s1 * Config.getSemiLambda(),
+                                                observeDis[a2] + s2 * Config.getSemiLambda(), observeDis[a3] + s3 * Config.getSemiLambda());
+                                        if (p != null) {
+                                            initPos.add(p);
+                                        }
+                                    }
                                 }
                             }
                         }

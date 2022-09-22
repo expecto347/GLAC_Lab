@@ -42,11 +42,11 @@ public class Simulation {
             int i = 0;
             ArrayList<StateStamp> g = shape.generate();
             for (StateStamp s : g) {
-                double ph = genPhase(s.getStateVector().get(0, 0), s.getStateVector().get(1, 0), i);//获得相位值，i是天线标号
+                double ph = genPhase(s.getStateVector().get(0, 0), s.getStateVector().get(1, 0), s.getStateVector().get(2, 0), i);//获得相位值，i是天线标号
                 TagData td = new TagData(i, s.getTime(), ph);
                 hmm.add(td);
-                i = (i + 1) % Config.getK(); //TODO 每次都运行一遍浪费效率
-            }//TODO 不能在同一时间测量吗？
+                i = (i + 1) % Config.getK();
+            }
             ArrayList<Pair<Double, Double>> tr = hmm.getTrajectory();
             ArrayList<Pair<Double, Double>> v = hmm.getVelocity();
             if (tr == null) {
