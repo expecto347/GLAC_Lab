@@ -70,7 +70,7 @@ class EKF implements Comparable<EKF>, Cloneable {
         Matrix oldstate = stamp.getStateVector();
         Matrix oldcov = stamp.getCovMatrix();
         //设置状态转移矩阵A
-        Matrix A = getAMatrix((td.getTime() - stamp.getTime()) * 0.001);
+        Matrix A = getAMatrix((td.getTime() - stamp.getTime())*0.001);
         //使用状态转移方程估计新的分布
         Matrix newstate = A.times(oldstate);
         Matrix newcov = A.times(oldcov).times(A.transpose()).plus(Q);
@@ -84,7 +84,7 @@ class EKF implements Comparable<EKF>, Cloneable {
         gain = newcov.times(C.transpose()).times(gain.inverse());
         //估计综合后的状态和协方差矩阵
         newstate = newstate.plus(gain.times(diff));
-        newcov = Matrix.identity(4, 4).minus(gain.times(C)).times(newcov);
+        newcov = Matrix.identity(6, 6).minus(gain.times(C)).times(newcov);
         //生成状态戳并加入历史列表
         stamp = new StateStamp(td.getTime(), newstate, newcov);
         this.stateList.add(stamp);
@@ -140,9 +140,10 @@ class EKF implements Comparable<EKF>, Cloneable {
      * @return 状态转移矩阵
      */
     private Matrix getAMatrix(double timestep) {
-        Matrix A = Matrix.identity(4, 4);
-        A.set(0, 2, timestep);
-        A.set(1, 3, timestep);
+        Matrix A = Matrix.identity(6, 6);
+        A.set(0, 3, timestep);
+        A.set(1, 4, timestep);
+        A.set(2, 5, timestep);
         return A;
     }
 
@@ -155,10 +156,11 @@ class EKF implements Comparable<EKF>, Cloneable {
      *
      */
     private Matrix getObserveMatrix(Matrix state, int antIndex) {
-        double d = MyUtils.dist(state.get(0, 0), state.get(1, 0), Config.getX(antIndex), Config.getY(antIndex));
-        Matrix ans = new Matrix(1, 4);
+        double d = MyUtils.dist(state.get(0, 0), state.get(1, 0), state.get(2, 0), Config.getX(antIndex), Config.getY(antIndex), Config.getZ(antIndex));
+        Matrix ans = new Matrix(1, 6);
         ans.set(0, 0, (state.get(0, 0) - Config.getX(antIndex)) / d);
         ans.set(0, 1, (state.get(1, 0) - Config.getY(antIndex)) / d);
+        ans.set(0, 2, (state.get(2, 0) - Config.getZ(antIndex)) / d);
         return ans;
     }
 
@@ -172,7 +174,7 @@ class EKF implements Comparable<EKF>, Cloneable {
      * @return 残差
      */
     private double getResidual(int ano, Matrix state, double obsDist) {
-        double theoryDist = 2 * MyUtils.dist(Config.getX(ano), Config.getY(ano), state.get(0, 0), state.get(1, 0));//天线到估计点的距离
+        double theoryDist = 2 * MyUtils.dist(Config.getX(ano), Config.getY(ano), Config.getZ(ano), state.get(0, 0), state.get(1, 0), state.get(2,0));//天线到估计点的距离
         long n = Math.round((theoryDist - obsDist) / Config.getSemiLambda());
         obsDist = obsDist + n * Config.getSemiLambda();//观测距离
         double diff = (obsDist - theoryDist) / 2.0;
@@ -185,11 +187,11 @@ class EKF implements Comparable<EKF>, Cloneable {
      * @param p 坐标
      * @return 长度为k的数组，发送天线经过它到各个接收天线的距离
      */
-    private double[] dist(Pair<Double, Double> p) {
+    private double[] dist(Coordinate p) {
         double[] ds = new double[Config.getK()];
         for (int i = 0; i < Config.getK(); i++) {
-            double t1 = p.getLeft() - Config.getX(i), t2 = p.getRight() - Config.getY(i);
-            ds[i] = 2 * Math.sqrt(t1 * t1 + t2 * t2);//再加上点到接收天线的距离
+            double t1 = p.getX() - Config.getX(i), t2 = p.getY() - Config.getY(i), t3 = p.getZ() -Config.getZ(i);
+            ds[i] = 2 * Math.sqrt(t1 * t1 + t2 * t2 + t3 * t3);//再加上点到接收天线的距离
             ds[i] = ds[i] - Math.floor(ds[i] / Config.getSemiLambda()) * Config.getSemiLambda();//距离模波长
         }
         return ds;
@@ -224,13 +226,12 @@ class EKF implements Comparable<EKF>, Cloneable {
         double w = 1.0;
         double residual = getResidual(antIndex, s1.getStateVector(), obsDis);//得到残差
         w = w * MyUtils.getNormalDistribution(0, Config.getSigmaP(), residual * 2);//使用距离的观测进行加权
-        double timestep = (s1.getTime() - s0.getTime()) * 0.001;//时间差       
+        double timestep = (s1.getTime() - s0.getTime());// * 0.001;//时间差
         w *= MyUtils.getNormalDistribution(0, Config.getSigmaP(), MyUtils.dist(s1.getStateVector().get(0, 0), s1.getStateVector().get(1, 0),
-                s0.getStateVector().get(0, 0) + timestep * s0.getStateVector().get(2, 0),
-                s0.getStateVector().get(1, 0) + timestep * s0.getStateVector().get(3, 0)));//使用距离的估计进行加权
-        //TODO 多写几句会死啊？真不把人当人看了？这括号套括号谁看得明白啊
-        w *= MyUtils.getNormalDistribution(0, Config.getSigmaV(), MyUtils.dist(s0.getStateVector().get(2, 0), s0.getStateVector().get(3, 0),
-                s1.getStateVector().get(2, 0), s1.getStateVector().get(3, 0)));//使用速度变化进行加权
+                 s1.getStateVector().get(2, 0), s0.getStateVector().get(0, 0) + timestep * s0.getStateVector().get(3, 0),
+                s0.getStateVector().get(1, 0) + timestep * s0.getStateVector().get(4, 0), s0.getStateVector().get(2, 0)+timestep * s0.getStateVector().get(5, 0)));//使用距离的估计进行加权
+        w *= MyUtils.getNormalDistribution(0, Config.getSigmaV(), MyUtils.dist(s0.getStateVector().get(3, 0), s0.getStateVector().get(4, 0), s0.getStateVector().get(5, 0),
+                s1.getStateVector().get(3, 0), s1.getStateVector().get(4, 0), s1.getStateVector().get(5, 0)));//使用速度变化进行加权
         return w * this.weight;
     }
 
@@ -239,11 +240,11 @@ class EKF implements Comparable<EKF>, Cloneable {
      *
      * @return 运动轨迹
      */
-    public ArrayList<Pair<Double, Double>> getTrajectory() {
-        ArrayList<Pair<Double, Double>> list = new ArrayList<>();
+    public ArrayList<Coordinate> getTrajectory() {
+        ArrayList<Coordinate> list = new ArrayList<>();
         for (StateStamp e : stateList) {
             Matrix v = e.getStateVector();
-            list.add(Pair.of(v.get(0, 0), v.get(1, 0)));
+            list.add(new Coordinate(v.get(0, 0), v.get(1, 0), v.get(2, 0)));
         }
         return list;
     }
@@ -253,11 +254,11 @@ class EKF implements Comparable<EKF>, Cloneable {
      *
      * @return 运动轨迹
      */
-    public ArrayList<Pair<Double, Double>> getVelocity() {
-        ArrayList<Pair<Double, Double>> list = new ArrayList<>();
+    public ArrayList<Coordinate> getVelocity() {
+        ArrayList<Coordinate> list = new ArrayList<>();
         for (StateStamp e : stateList) {
             Matrix v = e.getStateVector();
-            list.add(Pair.of(v.get(2, 0), v.get(3, 0)));
+            list.add(new Coordinate(v.get(3, 0), v.get(4, 0), v.get(5, 0)));
         }
         return list;
     }

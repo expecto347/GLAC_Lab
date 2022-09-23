@@ -39,6 +39,7 @@ class Trilateration {
             y3 = Math.sqrt(r1*r1 - x3*x3 - z3*z3);
         }
         else return null;
+
         Coordinate c = new Coordinate((x1 + x2 + x3)/3, (y1 + y2 + y3)/3, (z1 + z2 +z3)/3); //求得他们的重心，返回估计的坐标
         return c;
     }

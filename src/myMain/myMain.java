@@ -2,18 +2,18 @@ package myMain;
 
 import java.util.ArrayList;
 import java.util.Scanner;
-import simulation.Simulation;
-import simulation.Circle;
-import simulation.Line;
-import simulation.Triangle;
+
+import simulation.*;
 import utils.MyChart;
 
 public class myMain {
     public static void main(String[] args) {
-        System.out.println("Please enter the number before the shape you want to simulate:");
+        /**
+         * System.out.println("Please enter the number before the shape you want to simulate:");
         System.out.println("1. Line");
         System.out.println("2. Circle");
         System.out.println("3. Triangle");
+        System.out.println("4. Helix");
 
         int shape = new Scanner(System.in).nextInt();
         //Wait the input
@@ -63,10 +63,34 @@ public class myMain {
 
                 results = Simulation.track(triangle);
                 break;
+            case 4:
+                System.out.println("You have chosen the Helix.");
+                System.out.println("Please enter the radius(m):");
+                double radius1 = new Scanner(System.in).nextDouble();
+
+                System.out.println("Please enter the velocity of z axis(m/s):");
+                double velocity3 = new Scanner(System.in).nextDouble();
+
+                System.out.println("Please enter the omega(m/s):");
+                double omega = new Scanner(System.in).nextDouble();
+
+                System.out.println("Please enter the theta:");
+                double theta = new Scanner(System.in).nextDouble();
+
+                System.out.println("Please enter the time(s):");
+                long time3 = new Scanner(System.in).nextLong();
+
+                Helix helix = new Helix(velocity3, omega, theta, radius1, time3);
+
+                results = Simulation.track(helix);
+                break;
             default:
                 System.out.println("You have chosen an invalid shape.");
                 return;
-        }
+        }**/
+        ArrayList<Double>[][] results;
+        Helix helix = new Helix(60, 3, 0, 10, 1000);
+        results = Simulation.track(helix);
         myGUI.myGUI(results);
     }
 }

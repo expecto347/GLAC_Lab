@@ -8,6 +8,7 @@ package simulation;
 
 import Jama.Matrix;
 import glac.Config;
+import glac.Coordinate;
 import glac.TagData;
 import glac.HMM;
 import utils.MyRandom;
@@ -28,16 +29,16 @@ public class Simulation {
     static MyRandom random = new MyRandom();//随机数生成器
 
     public static ArrayList<Double>[][] track(Shape shape) {
-        ArrayList<Double>[][] lists = new ArrayList[2][3];
+        ArrayList<Double>[][] lists = new ArrayList[2][4];
         for (int i = 0; i < 2; i++) {
-            for (int j = 0; j < 3; j++) {
+            for (int j = 0; j < 4; j++) {
                 lists[i][j] = new ArrayList<>();
             }
         } //初始化List
 
 
         HMM hmm = new HMM();
-        for (int t = 0; t < 10; t++) {
+        for (int t = 0; t < 1; t++) {
             hmm.clear();
             int i = 0;
             ArrayList<StateStamp> g = shape.generate();
@@ -47,8 +48,8 @@ public class Simulation {
                 hmm.add(td);
                 i = (i + 1) % Config.getK();
             }
-            ArrayList<Pair<Double, Double>> tr = hmm.getTrajectory();
-            ArrayList<Pair<Double, Double>> v = hmm.getVelocity();
+            ArrayList<Coordinate> tr = hmm.getTrajectory();
+            ArrayList<Coordinate> v = hmm.getVelocity();
             if (tr == null) {
                 t--;
                 continue;
@@ -62,7 +63,7 @@ public class Simulation {
             for (int k = 0; k < g.size(); k++) {
                 Matrix e = getError(tr.get(k), v.get(k), g.get(k).getStateVector());
                 for (i = 0; i < 2; i++) {
-                    for (int j = 0; j < 3; j++) {
+                    for (int j = 0; j < 4; j++) {
                         lists[i][j].add(e.get(i, j));
                     }
                 }
@@ -71,14 +72,16 @@ public class Simulation {
         return lists;
     }
 
-    private static Matrix getError(Pair<Double, Double> p, Pair<Double, Double> v, Matrix g) {
-        double[][] mat = new double[2][3];
-        mat[0][0] = Math.abs(g.get(0, 0) - p.getLeft());
-        mat[0][1] = Math.abs(g.get(1, 0) - p.getRight());
-        mat[0][2] = MyUtils.dist(g.get(0, 0), g.get(1, 0), p.getLeft(), p.getRight());
-        mat[1][0] = Math.abs(g.get(2, 0) - v.getLeft());
-        mat[1][1] = Math.abs(g.get(3, 0) - v.getRight());
-        mat[1][2] = MyUtils.dist(g.get(2, 0), g.get(3, 0), v.getLeft(), v.getRight());
+    private static Matrix getError(Coordinate p, Coordinate v, Matrix g) {
+        double[][] mat = new double[2][4];
+        mat[0][0] = Math.abs(g.get(0, 0) - p.getX());
+        mat[0][1] = Math.abs(g.get(1, 0) - p.getY());
+        mat[0][2] = Math.abs(g.get(2, 0) - p.getZ());
+        mat[0][3] = MyUtils.dist(g.get(0, 0), g.get(1, 0), g.get(2, 0), p.getX(), p.getY(), p.getZ());
+        mat[1][0] = Math.abs(g.get(3, 0) - v.getX());
+        mat[1][1] = Math.abs(g.get(4, 0) - v.getY());
+        mat[1][2] = Math.abs(g.get(5, 0) - v.getZ());
+        mat[1][3] = MyUtils.dist(g.get(3, 0), g.get(4, 0), g.get(5, 0), v.getX(), v.getY(), v.getZ());
         return new Matrix(mat);
     }
 

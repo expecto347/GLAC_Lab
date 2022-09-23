@@ -28,39 +28,31 @@ public class Config {
     private static Config instance;
 
     static {
-        try (Scanner sc = new Scanner(new File("Config.json"))) {
-            String s = sc.nextLine();
-            Gson gson = new Gson();
-            instance = gson.fromJson(s, Config.class);
-        } catch (FileNotFoundException ex) {
-            System.err.println("Config.json is not found. Use default configuration instead.");
-            instance = new Config();
-            save();
-        }
+        instance = new Config();
     }
     /**
      * 天线数目<br>
      * The number of antennas
      */
-    public final int k = 5;
+    public final int k = 4;
     /**
      * 天线的X坐标，数组的每一个元素对应一根天线
      * The X coordinate of the antennas. Each element of the array corresponds
      * to an antenna.
      */
-    public final double[] x = {0, 0, 0.6, 0.6, 0.3};
+    public final double[] x = {0, 60, 0, 0};
     /**
      * 天线的Y坐标，数组的每一个元素对应一根天线
      * The Y coordinate of the antennas. Each element of the array corresponds
      * to an antenna.
      */
-    public final double[] y = {0, 0.6, 0, 0.6, 0.3};
+    public final double[] y = {0, 0, 60, 0};
     /**
      * 天线的Z坐标，数组的每一个元素对应一根天线
      * The Z coordinate of the antennas. Each element of the array corresponds
      * to an antenna.
      */
-    public final double[] z = {0, 0, 0, 0, 0.6};
+    public final double[] z = {0, 0, 0, 60};
     /**
      * RFID使用的电磁波的半波长<br>
      * The half wavelength of RFID
@@ -83,7 +75,7 @@ public class Config {
      * 最大扩展的半波长数目<br>
      * Maximum number of extended semiLambda
      */
-    public final int maxS = 15;
+    public final int maxS = 8;
     /**
      * 位置估计的标准差<br>
      * The standard deviation of position estimation

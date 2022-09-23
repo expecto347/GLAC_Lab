@@ -11,7 +11,7 @@ public class myGUI {
         JFrame pFrame = new JFrame("pFrame");
         JFrame vFrame = new JFrame("vFrame");
 
-        String[] legends = {"X", "Y", "Combined"};
+        String[] legends = {"X", "Y", "Z", "Combined"};
         ChartPanel pPanel = MyChart.cdfPlot("CDF of Position Error", "Position Error (cm)", legends, results[0]);
         pPanel.setBounds(0, 0, 100, 100);
 

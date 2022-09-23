@@ -33,18 +33,18 @@ public class Helix extends Shape{
     @Override
     public ArrayList<StateStamp> generate() {
         ArrayList<StateStamp> statelist = new ArrayList<>();
-        double x0 = random.nextDouble(0, 60);
-        double y0 = random.nextDouble(0, 60);
-        double z0 = random.nextDouble(0, 60);
+        double x0 = 15;
+        double y0 = 15;
+        double z0 = 0;
         double x = x0+r*Math.cos(theta);
         double y = y0+r*Math.sin(theta);
         double z = z0; //初始化位置
         for(long t = 0; t <= time; t += 25){
-            double[][] mat = {{x}, {y}, {z}, {omega*r*Math.cos(theta+omega*t)}, {v_z*Math.sin(theta+omega*t)}, {v_z}};
+            double[][] mat = {{x}, {y}, {z}, {-omega*r*Math.sin(theta+omega*t/1000)}, {omega*r*Math.cos(theta+omega*t/1000)}, {v_z}};
             statelist.add(new StateStamp(t, new Matrix(mat), null));
-            x = x0+omega*r*Math.cos(theta+omega*t);
-            y = y0+omega*r*Math.sin(theta+omega*t);
-            z = z0 + v_z*t;
+            x = x0+r*Math.cos(theta+omega*t/1000);
+            y = y0+r*Math.sin(theta+omega*t/1000);
+            z = z0 + v_z*t/1000;
         }
         return statelist;
     }

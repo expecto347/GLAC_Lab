@@ -104,7 +104,7 @@ public class HMM {
      */
     private double getProjectedVelocity(TagData p1, TagData p2) {
         double ph1 = p1.getPhase(), ph2 = unwrap(ph1, p2.getPhase());
-        double timestep = (p2.getTime() - p1.getTime()); //我们采用国际标准单位
+        double timestep = (p2.getTime() - p1.getTime())*0.001;
         double diff = (ph1 - ph2) / Math.PI * Config.getSemiLambda();//注意，这是往返的距离差
         return diff / (2 * timestep);
     }
@@ -293,7 +293,7 @@ public class HMM {
         for (EKF tr : newList) {
             tr.setWeight(tr.getWeight() / total);
         }
-    }
+    } //归一化，并对权重过小的轨迹剪枝
 
     /**
      * 获取权重最大的运动轨迹<br>
@@ -301,7 +301,7 @@ public class HMM {
      *
      * @return 运动轨迹(The trajectory)
      */
-    public ArrayList<Pair<Double, Double>> getTrajectory() {
+    public ArrayList<Coordinate> getTrajectory() {
         if (trajectories.isEmpty()) {
             return null;
         }
@@ -324,7 +324,7 @@ public class HMM {
      *
      * @return 速度序列(The velocity sequence)
      */
-    public ArrayList<Pair<Double, Double>> getVelocity() {
+    public ArrayList<Coordinate> getVelocity() {
         if (trajectories.isEmpty()) {
             return null;
         }
