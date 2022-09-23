@@ -98,8 +98,8 @@ public class HMM {
     /**
      * 根据两个折叠后的相位求投影速度
      *
-     * @param ph1 前一时刻的观测
-     * @param ph2 当前时刻的观测
+     * @param p1 前一时刻的观测
+     * @param p2 当前时刻的观测
      * @return 投影速度
      */
     private double getProjectedVelocity(TagData p1, TagData p2) {
@@ -156,13 +156,13 @@ public class HMM {
             observeDis[i] = -phase[i] / Math.PI * Config.getSemiLambda();
         }
         //初始位置估计
-        ArrayList<Pair<Double, Double>> initPos = initialPositionEstimate(observeDis);
+        ArrayList<Coordinate> initPos = initialPositionEstimate(observeDis);
         //为每一个初始位置计算初始速度，组成初始状态，并启动对应的EKF
-        for (Pair<Double, Double> p : initPos) {
+        for (Coordinate p : initPos) {
             //初始速度估计
-            Pair<Double, Double> pv = initialVelocityEstimate(v, p);
+            Coordinate pv = initialVelocityEstimate(v, p);
             //组合为初始状态
-            double A[][] = {{p.getLeft()}, {p.getRight()}, {pv.getLeft()}, {pv.getRight()}};
+            double A[][] = {{p.getX()}, {p.getY()}, {p.getZ()}, {pv.getX()}, {pv.getY()}, {pv.getZ()}};
             StateStamp e = new StateStamp(time, new Matrix(A), EKF.Q);
             //启动对应的EKF
             trajectories.add(new EKF(e, observeDis));
@@ -177,9 +177,9 @@ public class HMM {
      * @param observeDis 所有天线的观测距离（模pi）
      * @return 估计得到的一系列初始位置
      */
-    private ArrayList<Pair<Double, Double>> initialPositionEstimate(double observeDis[]) {
+    private ArrayList<Coordinate> initialPositionEstimate(double observeDis[]) {
         //六重循环遍历所有的天线组（包括三根天线）以及三元组S 
-        ArrayList<Pair<Double, Double>> initPos = new ArrayList<>();
+        ArrayList<Coordinate> initPos = new ArrayList<>();
         int k = Config.getK();
         for (int a1 = 0; a1 < k; a1++) {//天线1
             for (int a2 = a1 + 1; a2 < k; a2++) {//天线2
@@ -189,8 +189,9 @@ public class HMM {
                             for (int s2 = 0; s2 <= Config.getMaxS(); s2++) {//天线2对应的整数波长
                                 for (int s3 = 0; s3 <= Config.getMaxS(); s3++) {//天线3对应的整数波长
                                     for (int s4 = 0; s4 <= Config.getMaxS(); s4++) {//天线4对应的整数波长
-                                        Pair<Double, Double> p = Trilateration.estimate(a1, a2, a3, observeDis[a1] + s1 * Config.getSemiLambda(),
-                                                observeDis[a2] + s2 * Config.getSemiLambda(), observeDis[a3] + s3 * Config.getSemiLambda());
+                                        Coordinate p = Trilateration.Trilateration(a1, a2, a3, a4,observeDis[a1] + s1 * Config.getSemiLambda(),
+                                                observeDis[a2] + s2 * Config.getSemiLambda(), observeDis[a3] + s3 * Config.getSemiLambda(),
+                                                observeDis[a4] + s4 * Config.getSemiLambda());
                                         if (p != null) {
                                             initPos.add(p);
                                         }
@@ -212,44 +213,53 @@ public class HMM {
      * @param loc 标签位置
      * @return 估计的二维速度
      */
-    private Pair<Double, Double> initialVelocityEstimate(double v[], Pair<Double, Double> loc) {
-        double x[] = new double[Config.getK()], y[] = new double[Config.getK()];
+    private Coordinate initialVelocityEstimate(double v[], Coordinate loc) {
+        double x[][] =new double[Config.getK()][3];
+        double y[] = new double[Config.getK()];
         for (int i = 0; i < Config.getK(); i++) {
-            double ex = loc.getLeft() - Config.getX(i);
-            double ey = loc.getRight() - Config.getY(i);
-            double e = Math.sqrt(ex * ex + ey * ey);
+            double ex = loc.getX() - Config.getX(i);
+            double ey = loc.getY() - Config.getY(i);
+            double ez = loc.getZ() - Config.getZ(i);
+            double e = Math.sqrt(ex * ex + ey * ey + ez * ez);
             ex = ex / e;
             ey = ey / e;
+            ez = ez / e;
             //得到单位向量
-            x[i] = ex / ey;
-            y[i] = v[i] / ey;
+            x[i][0] = 1;
+            x[i][1] = ey/ex;
+            x[i][2] = ez/ex;
+            y[i] = v[i]/ex;
         }
-        return leastSquares(x, y);
+        return MultipleLinearRegression.main(x,y);
     }
 
     /**
-     * 最小二乘法进行线性拟合。拟合的式子为ax+b=y。
+     * 最小二乘法进行线性拟合。拟合的式子为ax+by+c=z。
      *
      * @param x 用于拟合的x值列表
      * @param y 用于拟合的y值列表
-     * @return 拟合得到的参数(a,b)
+     * @param z 用于拟合的z值列表
+     * @return 拟合得到的参数(a,b,c)
      */
-    private Pair<Double, Double> leastSquares(double x[], double y[]) {
-        double A[][] = new double[2][2];
-        double b[][] = new double[2][1];
+    private Coordinate leastSquares(double x[], double y[], double z[]){
+        double a = 0, b = 0, c = 0;
+        double sumx = 0, sumy = 0, sumz = 0, sumxy = 0, sumxz = 0, sumyz = 0, sumx2 = 0, sumy2 = 0;
         for (int i = 0; i < x.length; i++) {
-            A[0][1] += x[i];
-            A[1][1] += (x[i] * x[i]);
-            b[0][0] += y[i];
-            b[1][0] += (x[i] * y[i]);
+            sumx += x[i];
+            sumy += y[i];
+            sumz += z[i];
+            sumxy += x[i] * y[i];
+            sumxz += x[i] * z[i];
+            sumyz += y[i] * z[i];
+            sumx2 += x[i] * x[i];
+            sumy2 += y[i] * y[i];
         }
-        A[0][0] = x.length;
-        A[1][0] = A[0][1];
-        Matrix MA = new Matrix(A, 2, 2);
-        Matrix Mb = new Matrix(b, 2, 1);
-        Matrix ans = MA.inverse().times(Mb);
-        return Pair.of(ans.get(1, 0), ans.get(0, 0));
+        a = (sumx * sumy * sumz - sumx * sumyz - sumy * sumxz + sumz * sumxy) / (sumx * sumx * sumy - sumx * sumxy - sumy * sumx2 + sumxy * sumxy);
+        b = (sumx * sumy * sumz - sumx * sumyz - sumy * sumxz + sumz * sumxy) / (sumx * sumx * sumy - sumx * sumxy - sumy * sumx2 + sumxy * sumxy);
+        c = (sumz - a * sumx - b * sumy) / x.length;
+        return new Coordinate(a, b, c);
     }
+
 
     /**
      * 相位展开：将val增减若干个PI，得到展开后的值，使得它与base最接近。

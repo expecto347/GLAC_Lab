@@ -22,11 +22,13 @@ class EKF implements Comparable<EKF>, Cloneable {
     static {//设置噪声
         double sigmaP = Config.getSigmaP(), sigmaV = Config.getSigmaV();
         //设置转移噪声
-        Q = Matrix.identity(4, 4);
+        Q = Matrix.identity(6, 6);
         Q.set(0, 0, sigmaP * sigmaP);//x方向位置的方差
         Q.set(1, 1, sigmaP * sigmaP);//y方向位置的方差
         Q.set(2, 2, sigmaV * sigmaV);//x方向速度的方差
-        Q.set(3, 3, sigmaV * sigmaV);//y方向速度的方差       
+        Q.set(3, 3, sigmaV * sigmaV);//x方向速度的方差
+        Q.set(4, 4, sigmaV * sigmaV);//y方向速度的方差
+        Q.set(5, 5, sigmaV * sigmaV);//y方向速度的方差
         //设置观测噪声
         R = Matrix.identity(1, 1).times(2 * sigmaP * sigmaP);
     }
@@ -54,7 +56,7 @@ class EKF implements Comparable<EKF>, Cloneable {
     public EKF(StateStamp s, double[] obsDis) {
         stateList = new ArrayList<>();
         stateList.add(s);
-        weight = assignInitialWeight(Pair.of(s.getStateVector().get(0, 0), s.getStateVector().get(1, 0)), obsDis);
+        weight = assignInitialWeight(new Coordinate(s.getStateVector().get(0, 0), s.getStateVector().get(1, 0), s.getStateVector().get(2, 0)), obsDis);
     }
 
     /**
@@ -167,7 +169,6 @@ class EKF implements Comparable<EKF>, Cloneable {
      *
      * @param ano 做出观测的天线编号
      * @param state 初步估计的状态向量，包含位置信息
-     * @param phase 天线得到的相位
      * @return 残差
      */
     private double getResidual(int ano, Matrix state, double obsDist) {
@@ -200,7 +201,7 @@ class EKF implements Comparable<EKF>, Cloneable {
      * @param x 采样点坐标
      * @return 权重
      */
-    private double assignInitialWeight(Pair<Double, Double> x, double observeDis[]) {
+    private double assignInitialWeight(Coordinate x, double observeDis[]) {
         double ds[] = dist(x);
         double w = 1.0;
         for (int i = 0; i < Config.getK(); i++) {
