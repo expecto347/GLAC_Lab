@@ -163,8 +163,8 @@ class EKF implements Comparable<EKF>, Cloneable {
     }
 
     /**
-     * 计算观测距离和预测距离的差值（残差）。<br>
-     * 预测距离：初步估计的位置与天线的欧氏距离。<br>
+     * 计算观测距离和预测距离的差值（残差）。
+     * 预测距离：初步估计的位置与天线的欧氏距离。
      * 观测距离：将相位换算成距离，并增加若干个半波长（展开），使其与预测距离最接近。
      *
      * @param ano 做出观测的天线编号
@@ -185,11 +185,11 @@ class EKF implements Comparable<EKF>, Cloneable {
      * @param p 坐标
      * @return 长度为k的数组，发送天线经过它到各个接收天线的距离
      */
-    private double[] dist(Pair<Double, Double> p) {
+    private double[] dist(Coordinate p) {
         double[] ds = new double[Config.getK()];
         for (int i = 0; i < Config.getK(); i++) {
-            double t1 = p.getLeft() - Config.getX(i), t2 = p.getRight() - Config.getY(i);
-            ds[i] = 2 * Math.sqrt(t1 * t1 + t2 * t2);//再加上点到接收天线的距离
+            double t1 = p.getX() - Config.getX(i), t2 = p.getY() - Config.getY(i), t3 = p.getZ() - Config.getZ(i);
+            ds[i] = 2 * Math.sqrt(t1 * t1 + t2 * t2 + t3 * t3);//再加上点到接收天线的距离
             ds[i] = ds[i] - Math.floor(ds[i] / Config.getSemiLambda()) * Config.getSemiLambda();//距离模波长
         }
         return ds;
