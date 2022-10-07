@@ -84,7 +84,7 @@ public class HMM {
             p[i] = interpolate(t, rawDatas[i].get(0), rawDatas[i].get(1));//插值
             v[i] = getProjectedVelocity(rawDatas[i].get(0), rawDatas[i].get(1));//估计投影速度
         }
-        initialEstimate(t, p, v);
+        initialEstimate(t, p, v, td);
         //依次更新卡尔曼滤波
         for (int i = 1; i < tagDatas.size(); i++) {
             for (EKF tr : trajectories) {
@@ -148,7 +148,7 @@ public class HMM {
      * @param phase 各天线插值后的同步相位
      * @param v 各天线的投影速度
      */
-    private void initialEstimate(long time, double phase[], double v[]) {
+    private void initialEstimate(long time, double phase[], double v[], TagData td) {
         //将输入的相位转为距离
         int k = Config.getK();
         double observeDis[] = new double[k];
@@ -158,6 +158,26 @@ public class HMM {
         //初始位置估计
         ArrayList<Coordinate> initPos = initialPositionEstimate(observeDis);
         //为每一个初始位置计算初始速度，组成初始状态，并启动对应的EKF
+        System.out.print(tagDatas.get(0).getTime());
+        System.out.print(" ");
+        System.out.print(tagDatas.get(0).getStateStamp()[0]);
+        System.out.print(" ");
+        System.out.print(tagDatas.get(0).getStateStamp()[1]);
+        System.out.print(" ");
+        System.out.print(tagDatas.get(0).getStateStamp()[2]);
+        System.out.print("\n");
+        double min = Double.MAX_VALUE;
+        for (Coordinate t : initPos){
+            if((t.getX() - td.getStateStamp()[0])*(t.getX() - td.getStateStamp()[0]) + (t.getY() - td.getStateStamp()[1])*(t.getY() - td.getStateStamp()[1]) + (t.getZ() - td.getStateStamp()[2])*(t.getZ() - td.getStateStamp()[2]) < min){
+                min = (t.getX() - td.getStateStamp()[0])*(t.getX() - td.getStateStamp()[0]) + (t.getY() - td.getStateStamp()[1])*(t.getY() - td.getStateStamp()[1]) + (t.getZ() - td.getStateStamp()[2])*(t.getZ() - td.getStateStamp()[2]);
+                System.out.print(t.getX());
+                System.out.print(" ");
+                System.out.print(t.getY());
+                System.out.print(" ");
+                System.out.print(t.getZ());
+                System.out.print("\n");
+            }
+        }
         for (Coordinate p : initPos) {
             //初始速度估计
             Coordinate pv = initialVelocityEstimate(v, p);
@@ -178,7 +198,7 @@ public class HMM {
      * @return 估计得到的一系列初始位置
      */
     private ArrayList<Coordinate> initialPositionEstimate(double observeDis[]) {
-        //六重循环遍历所有的天线组（包括三根天线）以及三元组S 
+        //六重循环遍历所有的天线组（包括四根天线）以及四元组S
         ArrayList<Coordinate> initPos = new ArrayList<>();
         int k = Config.getK();
         for (int a1 = 0; a1 < k; a1++) {//天线1

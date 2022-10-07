@@ -25,7 +25,7 @@ import static myMain.myGUI_track.myGUI_track;
  */
 public class Simulation {
 
-    static double sigma = 0.1;//仿真生成的相位的标准差
+    static double sigma = 0;//仿真生成的相位的标准差
     static MyRandom random = new MyRandom();//随机数生成器
 
     public static ArrayList<Double>[][] track(Shape shape) {
@@ -44,16 +44,25 @@ public class Simulation {
             ArrayList<StateStamp> g = shape.generate();
             for (StateStamp s : g) {
                 double ph = genPhase(s.getStateVector().get(0, 0), s.getStateVector().get(1, 0), s.getStateVector().get(2, 0), i);//获得相位值，i是天线标号
-                TagData td = new TagData(i, s.getTime(), ph);
+                double[] x = new double[6];
+                x[0] = s.getStateVector().get(0, 0);
+                x[1] = s.getStateVector().get(1, 0);
+                x[2] = s.getStateVector().get(2, 0);
+                x[3] = s.getStateVector().get(3, 0);
+                x[4] = s.getStateVector().get(4, 0);
+                x[5] = s.getStateVector().get(5, 0);
+
+                TagData td = new TagData(i, s.getTime(), ph, x);
                 hmm.add(td);
                 i = (i + 1) % Config.getK();
             }
             ArrayList<Coordinate> tr = hmm.getTrajectory();
             ArrayList<Coordinate> v = hmm.getVelocity();
+            /**
             if (tr == null) {
                 t--;
                 continue;
-            }
+            }*/
 /*
             if(t == 0){
                 myGUI_track(tr); //只想画一次轨迹图

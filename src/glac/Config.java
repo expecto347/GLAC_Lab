@@ -34,25 +34,25 @@ public class Config {
      * 天线数目<br>
      * The number of antennas
      */
-    public final int k = 4;
+    public final int k = 5;
     /**
      * 天线的X坐标，数组的每一个元素对应一根天线
      * The X coordinate of the antennas. Each element of the array corresponds
      * to an antenna.
      */
-    public final double[] x = {0, 60, 0, 0};
+    public final double[] x = {0, 60, 0, 0, 60};
     /**
      * 天线的Y坐标，数组的每一个元素对应一根天线
      * The Y coordinate of the antennas. Each element of the array corresponds
      * to an antenna.
      */
-    public final double[] y = {0, 0, 60, 0};
+    public final double[] y = {0, 0, 60, 0, 60};
     /**
      * 天线的Z坐标，数组的每一个元素对应一根天线
      * The Z coordinate of the antennas. Each element of the array corresponds
      * to an antenna.
      */
-    public final double[] z = {0, 0, 0, 60};
+    public final double[] z = {0, 0, 0, 60, 60};
     /**
      * RFID使用的电磁波的半波长<br>
      * The half wavelength of RFID

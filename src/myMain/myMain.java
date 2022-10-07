@@ -3,6 +3,7 @@ package myMain;
 import java.util.ArrayList;
 import java.util.Scanner;
 
+import glac.Coordinate;
 import simulation.*;
 import utils.MyChart;
 
@@ -87,10 +88,18 @@ public class myMain {
             default:
                 System.out.println("You have chosen an invalid shape.");
                 return;
-        }**/
+        }
+         **/
         ArrayList<Double>[][] results;
         Helix helix = new Helix(60, 3, 0, 10, 1000);
         results = Simulation.track(helix);
         myGUI.myGUI(results);
+        /*
+        Coordinate c = glac.Trilateration.Trilateration(0, 1, 2, 3, 51.96, 51.96, 51.96, 51.96);
+
+        System.out.print(c.getX());
+        System.out.print(c.getY());
+        System.out.print(c.getZ());
+        */
     }
 }

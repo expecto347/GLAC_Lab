@@ -10,7 +10,7 @@ import java.util.ArrayList;
  * 三角定位法。该类不可实例化
  * @author Wang
  */
-class Trilateration {
+public class Trilateration {
     /**
      * 三角定位法,传入三个基站的坐标和距离，返回定位点的坐标
      * @param n1
@@ -23,7 +23,7 @@ class Trilateration {
      * @param r4
      * @return 坐标，如果没有结果则返回空
      */
-    static Coordinate Trilateration(int n1, int n2, int n3, int n4, double r1, double r2, double r3, double r4){
+    public static Coordinate Trilateration(int n1, int n2, int n3, int n4, double r1, double r2, double r3, double r4){
         Coordinate[] c1 = Insection_3D(n1, r1, n2, r2, n3, r3);
         Coordinate[] c2 = Insection_3D(n1, r1, n2, r2, n4, r4);
         Coordinate[] c3 = Insection_3D(n1, r1, n3, r3, n4, r4);
@@ -64,7 +64,7 @@ class Trilateration {
      *
      */
     static Coordinate[] Intersection(double U, double V_x, double V_y, double r1, double r2, double r3){
-        double x = (r1 * r1 - r2 * r2 + U * U) / 2 * U; //求出交点的x值
+        double x = (r1 * r1 - r2 * r2 + U * U) / (2 * U); //求出交点的x值
         double y = (r1 * r1 - r3 * r3 + V_x * V_x + V_y * V_y - 2 * V_x * x) / (2 * V_y); //求出交点的y值
         if(r1 * r1 > x * x + y * y + 0.00000001){ //浮点数运算，精度设定为0.00000001
             double z = Math.sqrt(r1 * r1 - x * x - y * y); //求出交点的z值
@@ -73,9 +73,11 @@ class Trilateration {
             Coordinate[] c = {c1, c2};
             return c;
         }
+
         else if(r1 * r1 < x * x + y * y - 0.00000001){
             return null; //没有交点
         }
+
         else{
             Coordinate c = new Coordinate(x, y, 0);
             Coordinate[] c1 = {c};
@@ -120,7 +122,7 @@ class Trilateration {
 
         n1_ = m_x.times(n1_);
         n2_ = m_x.times(n2_);
-        n3_ = m_x.times(n3_); //将第三个点的y坐标变为0
+        n3_ = m_x.times(n3_); //将第三个点的z坐标变为0
 
         Matrix m = m_x.times(m_y).times(m_z); //求出总的旋转矩阵
 
@@ -157,6 +159,7 @@ class Trilateration {
         Coordinate[] c_ = Intersection(c1_.get(0, 0), c2_.get(0, 0), c2_.get(1, 0), r0, r1, r2); //求出旋转后的坐标系的值
 
         if(c_ == null) return null; //如果没有交点则返回null
+
         else{
             for(Coordinate t : c_){
                 Matrix t_ = m.inverse().times(new Matrix(new double[][]{{t.getX()}, {t.getY()}, {t.getZ()}}));
