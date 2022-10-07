@@ -89,17 +89,11 @@ public class myMain {
                 System.out.println("You have chosen an invalid shape.");
                 return;
         }
-         **/
+         */
         ArrayList<Double>[][] results;
-        Helix helix = new Helix(60, 3, 0, 10, 1000);
-        results = Simulation.track(helix);
+        // Helix helix = new Helix(60, 3, 0, 10, 1000);
+        Line line = new Line(1, 1, 1, 1000);
+        results = Simulation.track(line);
         myGUI.myGUI(results);
-        /*
-        Coordinate c = glac.Trilateration.Trilateration(0, 1, 2, 3, 51.96, 51.96, 51.96, 51.96);
-
-        System.out.print(c.getX());
-        System.out.print(c.getY());
-        System.out.print(c.getZ());
-        */
     }
 }

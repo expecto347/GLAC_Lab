@@ -25,7 +25,7 @@ import static myMain.myGUI_track.myGUI_track;
  */
 public class Simulation {
 
-    static double sigma = 0;//仿真生成的相位的标准差
+    static double sigma = 0.1;//仿真生成的相位的标准差
     static MyRandom random = new MyRandom();//随机数生成器
 
     public static ArrayList<Double>[][] track(Shape shape) {
@@ -58,11 +58,11 @@ public class Simulation {
             }
             ArrayList<Coordinate> tr = hmm.getTrajectory();
             ArrayList<Coordinate> v = hmm.getVelocity();
-            /**
-            if (tr == null) {
-                t--;
-                continue;
-            }*/
+
+            // if (tr == null) {
+                // t--;
+                // continue;
+            // }
 /*
             if(t == 0){
                 myGUI_track(tr); //只想画一次轨迹图

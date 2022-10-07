@@ -15,14 +15,16 @@ import static simulation.Simulation.random;
  */
 public class Line extends Shape {
         
-        double deg;
-        double v;
+        double v_x;
+        double v_y;
+        double v_z;
         long time;
         
-        public Line(double deg, double v, long time) {
-            this.deg = deg;
-            this.v = v;
-            this.time = time;
+        public Line(double v_x, double v_y, double v_z, long time) {
+                this.v_x = v_x;
+                this.v_y = v_y;
+                this.v_z = v_z;
+                this.time = time;
         }
 
         /**
@@ -34,14 +36,15 @@ public class Line extends Shape {
         @Override
         public ArrayList<StateStamp> generate() {
             ArrayList<StateStamp> statelist = new ArrayList<>();
-            double x = random.nextDouble(30, 80);
-            double y = random.nextDouble(30, 80);
-            double rad = deg / 180.0 * Math.PI;//角度转为弧度
+            double x = 30;
+            double y = 30;
+            double z = 30;
             for (long t = 0; t <= time; t += 25) {
-                double[][] mat = {{x}, {y}, {v * Math.cos(rad)}, {v * Math.sin(rad)}};
+                double[][] mat = {{x}, {y}, {z}, {v_x}, {v_y}, {v_z}};
                 statelist.add(new StateStamp(t, new Matrix(mat), null));
-                x += (v * Math.cos(rad) / 40.0);
-                y += (v * Math.sin(rad) / 40.0);
+                x = x + v_x / 40.0;
+                y = y + v_y / 40.0;
+                z = z + v_z / 40.0;
             }
             return statelist;
         }

@@ -209,9 +209,9 @@ public class HMM {
                             for (int s2 = 0; s2 <= Config.getMaxS(); s2++) {//天线2对应的整数波长
                                 for (int s3 = 0; s3 <= Config.getMaxS(); s3++) {//天线3对应的整数波长
                                     for (int s4 = 0; s4 <= Config.getMaxS(); s4++) {//天线4对应的整数波长
-                                        Coordinate p = Trilateration.Trilateration(a1, a2, a3, a4,observeDis[a1] + s1 * Config.getSemiLambda(),
-                                                observeDis[a2] + s2 * Config.getSemiLambda(), observeDis[a3] + s3 * Config.getSemiLambda(),
-                                                observeDis[a4] + s4 * Config.getSemiLambda());
+                                        Coordinate p = Trilateration.Trilateration(a1, a2, a3, a4,(observeDis[a1] + s1 * Config.getSemiLambda())/2,
+                                                (observeDis[a2] + s2 * Config.getSemiLambda())/2, (observeDis[a3] + s3 * Config.getSemiLambda())/2,
+                                                (observeDis[a4] + s4 * Config.getSemiLambda())/2);
                                         if (p != null) {
                                             initPos.add(p);
                                         }
