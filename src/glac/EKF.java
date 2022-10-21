@@ -226,7 +226,7 @@ class EKF implements Comparable<EKF>, Cloneable {
         double w = 1.0;
         double residual = getResidual(antIndex, s1.getStateVector(), obsDis);//得到残差
         w = w * MyUtils.getNormalDistribution(0, Config.getSigmaP(), residual * 2);//使用距离的观测进行加权
-        double timestep = (s1.getTime() - s0.getTime());// * 0.001;//时间差
+        double timestep = (s1.getTime() - s0.getTime()) * 0.001;//时间差
         w *= MyUtils.getNormalDistribution(0, Config.getSigmaP(), MyUtils.dist(s1.getStateVector().get(0, 0), s1.getStateVector().get(1, 0),
                  s1.getStateVector().get(2, 0), s0.getStateVector().get(0, 0) + timestep * s0.getStateVector().get(3, 0),
                 s0.getStateVector().get(1, 0) + timestep * s0.getStateVector().get(4, 0), s0.getStateVector().get(2, 0)+timestep * s0.getStateVector().get(5, 0)));//使用距离的估计进行加权

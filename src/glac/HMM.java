@@ -84,6 +84,10 @@ public class HMM {
             p[i] = interpolate(t, rawDatas[i].get(0), rawDatas[i].get(1));//插值
             v[i] = getProjectedVelocity(rawDatas[i].get(0), rawDatas[i].get(1));//估计投影速度
         }
+        double v_actual[] = new double[k];
+        for(int i = 0; i < k; i++){
+            v_actual[i] = getActualVelocity(rawDatas[i].get(0), rawDatas[i].get(1), i);
+        }
         initialEstimate(t, p, v, td);
         //依次更新卡尔曼滤波
         for (int i = 1; i < tagDatas.size(); i++) {
@@ -91,6 +95,7 @@ public class HMM {
                 tr.update(tagDatas.get(i));
             }
         }
+        normalizeWeight();//对权重归一化
         inited = true;
         rawDatas = null;
     }
@@ -158,6 +163,7 @@ public class HMM {
         //初始位置估计
         ArrayList<Coordinate> initPos = initialPositionEstimate(observeDis);
         //为每一个初始位置计算初始速度，组成初始状态，并启动对应的EKF
+        /**
         System.out.print(tagDatas.get(0).getTime());
         System.out.print(" ");
         System.out.print(tagDatas.get(0).getStateStamp()[0]);
@@ -170,14 +176,21 @@ public class HMM {
         for (Coordinate t : initPos){
             if((t.getX() - td.getStateStamp()[0])*(t.getX() - td.getStateStamp()[0]) + (t.getY() - td.getStateStamp()[1])*(t.getY() - td.getStateStamp()[1]) + (t.getZ() - td.getStateStamp()[2])*(t.getZ() - td.getStateStamp()[2]) < min){
                 min = (t.getX() - td.getStateStamp()[0])*(t.getX() - td.getStateStamp()[0]) + (t.getY() - td.getStateStamp()[1])*(t.getY() - td.getStateStamp()[1]) + (t.getZ() - td.getStateStamp()[2])*(t.getZ() - td.getStateStamp()[2]);
+                Coordinate pv = initialVelocityEstimate(v, t);
                 System.out.print(t.getX());
                 System.out.print(" ");
                 System.out.print(t.getY());
                 System.out.print(" ");
                 System.out.print(t.getZ());
+                System.out.print(" ");
+                System.out.print(pv.getX());
+                System.out.print(" ");
+                System.out.print(pv.getY());
+                System.out.print(" ");
+                System.out.print(pv.getZ());
                 System.out.print("\n");
             }
-        }
+        }调试内容**/
         for (Coordinate p : initPos) {
             //初始速度估计
             Coordinate pv = initialVelocityEstimate(v, p);
@@ -187,6 +200,7 @@ public class HMM {
             //启动对应的EKF
             trajectories.add(new EKF(e, observeDis));
         }
+        ArrayList<Coordinate> tr1 = getTrajectory();
         //权重归一化
         normalizeWeight();
     }
@@ -302,10 +316,20 @@ public class HMM {
      */
     private void normalizeWeight() {
         ArrayList<EKF> newList = new ArrayList<>();
+        // double len;
+        // int i;
         double total = 0;
         for (EKF tr : trajectories) {
             if (tr.getWeight() > Config.getStopThreshold()) {
                 total += tr.getWeight();
+                /**
+                len = newList.size();
+                i = 0;
+                while(i < len){
+                    if(tr.getWeight() < newList.get(i).getWeight()) i++;
+                    else break;
+                }
+                newList.add(i , tr); //按顺序排列**/
                 newList.add(tr);
             }
         }
@@ -359,5 +383,10 @@ public class HMM {
         }
         return picked.getVelocity();
     }
+    private static double getActualVelocity(TagData p1, TagData p2, int i) {
+        double d1 = MyUtils.dist(p1.getStateStamp()[0], p1.getStateStamp()[1], p1.getStateStamp()[2], Config.getX(i), Config.getY(i), Config.getZ(i));
+        double d2 = MyUtils.dist(p2.getStateStamp()[0], p2.getStateStamp()[1], p2.getStateStamp()[2], Config.getX(i), Config.getY(i), Config.getZ(i));
 
+        return (d2 - d1) / (p2.getTime() - p1.getTime());
+    }
 }
