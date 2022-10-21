@@ -92,7 +92,7 @@ public class myMain {
          */
         ArrayList<Double>[][] results;
         // Helix helix = new Helix(60, 3, 0, 10, 1000);
-        Line line = new Line(1, 1, 1, 1000);
+        Line line = new Line(1, 10, 15, 1000);
         results = Simulation.track(line);
         myGUI.myGUI(results);
     }

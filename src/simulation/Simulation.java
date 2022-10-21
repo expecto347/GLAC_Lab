@@ -38,12 +38,16 @@ public class Simulation {
 
 
         HMM hmm = new HMM();
-        for (int t = 0; t < 1; t++) {
+        for (int t = 0; t < 10000; t++) {
+            System.out.print("正在进行第");
+            System.out.print(t+1);
+            System.out.println("次仿真");
             hmm.clear();
             int i = 0;
             ArrayList<StateStamp> g = shape.generate();
             for (StateStamp s : g) {
                 double ph = genPhase(s.getStateVector().get(0, 0), s.getStateVector().get(1, 0), s.getStateVector().get(2, 0), i);//获得相位值，i是天线标号
+                //调试使用
                 double[] x = new double[6];
                 x[0] = s.getStateVector().get(0, 0);
                 x[1] = s.getStateVector().get(1, 0);
@@ -59,15 +63,10 @@ public class Simulation {
             ArrayList<Coordinate> tr = hmm.getTrajectory();
             ArrayList<Coordinate> v = hmm.getVelocity();
 
-            // if (tr == null) {
-                // t--;
-                // continue;
-            // }
-/*
-            if(t == 0){
-                myGUI_track(tr); //只想画一次轨迹图
+            if (tr == null) {
+                t--;
+                continue;
             }
- */
 
             for (int k = 0; k < g.size(); k++) {
                 Matrix e = getError(tr.get(k), v.get(k), g.get(k).getStateVector());
@@ -78,9 +77,17 @@ public class Simulation {
                 }
             }
         }
+        System.out.println("仿真结束");
         return lists;
     }
 
+    /**
+     * 生成误差值，其中误差值的第一行为位置误差，第二行为速度误差。
+     * @param p 估计的位置
+     * @param v 估计的速度
+     * @param g 真实的状态向量
+     * @return 误差值
+     */
     private static Matrix getError(Coordinate p, Coordinate v, Matrix g) {
         double[][] mat = new double[2][4];
         mat[0][0] = Math.abs(g.get(0, 0) - p.getX());
