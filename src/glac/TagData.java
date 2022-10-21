@@ -18,7 +18,7 @@ public class TagData {
     private final long time;//时间
     private final double phase;//相位（弧度）
 
-    private final double[] s;//状态戳
+    //private final double[] s;//状态戳
 
     /**
      * 构造器(Constructor)
@@ -27,11 +27,11 @@ public class TagData {
      * @param time 毫秒表示的时间(The time in millisecond)
      * @param phase 弧度表示的相位(The phase in radian)
      */
-    public TagData(int antennaIndex, long time, double phase, double[] s) {
+    public TagData(int antennaIndex, long time, double phase){
         this.antennaIndex = antennaIndex;
         this.time = time;
         this.phase = phase;
-        this.s = s;
+        // this.s = s;
     }
 
     /**
@@ -64,8 +64,11 @@ public class TagData {
         return phase;
     }
 
+    /**
     public double[] getStateStamp(){
         return s;
     }
+
+     */
 
 }

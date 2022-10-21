@@ -84,10 +84,6 @@ public class HMM {
             p[i] = interpolate(t, rawDatas[i].get(0), rawDatas[i].get(1));//插值
             v[i] = getProjectedVelocity(rawDatas[i].get(0), rawDatas[i].get(1));//估计投影速度
         }
-        double v_actual[] = new double[k];
-        for(int i = 0; i < k; i++){
-            v_actual[i] = getActualVelocity(rawDatas[i].get(0), rawDatas[i].get(1), i);
-        }
         initialEstimate(t, p, v, td);
         //依次更新卡尔曼滤波
         for (int i = 1; i < tagDatas.size(); i++) {
@@ -383,10 +379,13 @@ public class HMM {
         }
         return picked.getVelocity();
     }
+    /*
     private static double getActualVelocity(TagData p1, TagData p2, int i) {
         double d1 = MyUtils.dist(p1.getStateStamp()[0], p1.getStateStamp()[1], p1.getStateStamp()[2], Config.getX(i), Config.getY(i), Config.getZ(i));
         double d2 = MyUtils.dist(p2.getStateStamp()[0], p2.getStateStamp()[1], p2.getStateStamp()[2], Config.getX(i), Config.getY(i), Config.getZ(i));
 
         return (d2 - d1) / (p2.getTime() - p1.getTime());
     }
+
+     */
 }

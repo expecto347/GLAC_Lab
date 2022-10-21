@@ -38,7 +38,7 @@ public class Simulation {
 
 
         HMM hmm = new HMM();
-        for (int t = 0; t < 10000; t++) {
+        for (int t = 0; t < 100; t++) {
             System.out.print("正在进行第");
             System.out.print(t+1);
             System.out.println("次仿真");
@@ -47,7 +47,7 @@ public class Simulation {
             ArrayList<StateStamp> g = shape.generate();
             for (StateStamp s : g) {
                 double ph = genPhase(s.getStateVector().get(0, 0), s.getStateVector().get(1, 0), s.getStateVector().get(2, 0), i);//获得相位值，i是天线标号
-                //调试使用
+                /*
                 double[] x = new double[6];
                 x[0] = s.getStateVector().get(0, 0);
                 x[1] = s.getStateVector().get(1, 0);
@@ -56,7 +56,9 @@ public class Simulation {
                 x[4] = s.getStateVector().get(4, 0);
                 x[5] = s.getStateVector().get(5, 0);
 
-                TagData td = new TagData(i, s.getTime(), ph, x);
+                 */
+
+                TagData td = new TagData(i, s.getTime(), ph);
                 hmm.add(td);
                 i = (i + 1) % Config.getK();
             }
