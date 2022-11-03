@@ -34,7 +34,7 @@ public class Config {
      * 天线数目<br>
      * The number of antennas
      */
-    public final int k = 8;
+    public final int k = 5;
     /**
      * 天线的X坐标，数组的每一个元素对应一根天线
      * The X coordinate of the antennas. Each element of the array corresponds

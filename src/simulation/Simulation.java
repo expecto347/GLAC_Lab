@@ -25,7 +25,7 @@ import static myMain.myGUI_track.myGUI_track;
  */
 public class Simulation {
 
-    static double sigma = 0.1;//仿真生成的相位的标准差
+    static double sigma = 0.01;//仿真生成的相位的标准差
     static MyRandom random = new MyRandom();//随机数生成器
 
     public static ArrayList<Double>[][] track(Shape shape) {
@@ -38,7 +38,7 @@ public class Simulation {
 
 
         HMM hmm = new HMM();
-        for (int t = 0; t < 100; t++) {
+        for (int t = 0; t < 50; t++) {
             System.out.print("正在进行第");
             System.out.print(t+1);
             System.out.println("次仿真");

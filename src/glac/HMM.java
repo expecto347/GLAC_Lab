@@ -270,7 +270,7 @@ public class HMM {
      * @param y 用于拟合的y值列表
      * @param z 用于拟合的z值列表
      * @return 拟合得到的参数(a,b,c)
-     */
+
     private Coordinate leastSquares(double x[], double y[], double z[]){
         double a = 0, b = 0, c = 0;
         double sumx = 0, sumy = 0, sumz = 0, sumxy = 0, sumxz = 0, sumyz = 0, sumx2 = 0, sumy2 = 0;
@@ -289,6 +289,8 @@ public class HMM {
         c = (sumz - a * sumx - b * sumy) / x.length;
         return new Coordinate(a, b, c);
     }
+
+    */
 
 
     /**
