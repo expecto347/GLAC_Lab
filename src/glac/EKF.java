@@ -25,10 +25,10 @@ class EKF implements Comparable<EKF>, Cloneable {
         Q = Matrix.identity(6, 6);
         Q.set(0, 0, sigmaP * sigmaP);//x方向位置的方差
         Q.set(1, 1, sigmaP * sigmaP);//y方向位置的方差
-        Q.set(2, 2, sigmaV * sigmaV);//x方向速度的方差
+        Q.set(2, 2, sigmaP * sigmaP);//z方向位置的方差
         Q.set(3, 3, sigmaV * sigmaV);//x方向速度的方差
         Q.set(4, 4, sigmaV * sigmaV);//y方向速度的方差
-        Q.set(5, 5, sigmaV * sigmaV);//y方向速度的方差
+        Q.set(5, 5, sigmaV * sigmaV);//z方向速度的方差
         //设置观测噪声
         R = Matrix.identity(1, 1).times(2 * sigmaP * sigmaP);
     }

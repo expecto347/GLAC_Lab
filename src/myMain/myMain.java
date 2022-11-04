@@ -92,8 +92,35 @@ public class myMain {
          */
         ArrayList<Double>[][] results;
         // Helix helix = new Helix(5, 1, 0, 5, 1000);
-        Line line = new Line(1, 10, 15, 1000);
+        Line line = new Line(5, 5, 5, 1000);
         results = Simulation.track(line);
         myGUI.myGUI(results);
+        /**
+        // 输出初始位置的误差
+        //x的误差
+        double ex = 0, ey = 0, ez = 0, e = 0;
+        for(int i = 0; i < results[2].length; i = i + 4){
+            ex = ex + results[2][i].get(0);
+        }
+        System.out.println("ex = " + ex +"\n");
+
+        //y的误差
+        for(int i = 1; i < results[2].length; i = i + 4){
+            ey = ey + results[2][i].get(0);
+        }
+        System.out.println("ey = " + ey +"\n");
+
+        //z的误差
+        for(int i = 2; i < results[2].length; i = i + 4){
+            ez = ez + results[2][i].get(0);
+        }
+        System.out.println("ez = " + ez +"\n");
+
+        //输出初始位置的误差
+        for(int i = 3; i < results[2].length; i = i + 4){
+            e = e + results[2][i].get(0);
+        }
+        System.out.println("e = " + e +"\n");
+         */
     }
 }

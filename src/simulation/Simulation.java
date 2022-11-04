@@ -29,8 +29,8 @@ public class Simulation {
     static MyRandom random = new MyRandom();//随机数生成器
 
     public static ArrayList<Double>[][] track(Shape shape) {
-        ArrayList<Double>[][] lists = new ArrayList[2][4];
-        for (int i = 0; i < 2; i++) {
+        ArrayList<Double>[][] lists = new ArrayList[3][4];
+        for (int i = 0; i < 3; i++) {
             for (int j = 0; j < 4; j++) {
                 lists[i][j] = new ArrayList<>();
             }
@@ -38,7 +38,7 @@ public class Simulation {
 
 
         HMM hmm = new HMM();
-        for (int t = 0; t < 50; t++) {
+        for (int t = 0; t < 500; t++) {
             System.out.print("正在进行第");
             System.out.print(t+1);
             System.out.println("次仿真");
@@ -77,6 +77,11 @@ public class Simulation {
                         lists[i][j].add(e.get(i, j));
                     }
                 }
+            }
+
+            Matrix e = getError(tr.get(0), v.get(0), g.get(0).getStateVector());
+            for(i = 0; i < 4; i++) {
+                lists[2][i].add(e.get(0, i));
             }
         }
         System.out.println("仿真结束");
