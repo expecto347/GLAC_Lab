@@ -1,5 +1,7 @@
 package utils;
 
+import glac.Coordinate;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
@@ -67,6 +69,10 @@ public class MyUtils {
      */
     public static double dist(double x1, double y1, double z1, double x2, double y2, double z2) {
         return Math.sqrt((x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2) + (z1 - z2)*(z1 -z2));
+    }
+
+    public static double dist_c(Coordinate c1, Coordinate c2){
+        return dist(c1.getX(), c1.getY(), c1.getZ(), c2.getX(), c2.getY(), c2.getZ());
     }
 
 }

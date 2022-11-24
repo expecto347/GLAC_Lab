@@ -7,7 +7,7 @@ package glac;
 
 import Jama.Matrix;
 import java.util.ArrayList;
-import org.apache.commons.lang3.tuple.Pair;
+import utils.MyUtils;
 
 /**
  * A Hidden Markov Model used to describe the trajectory tracking.<br>
@@ -22,6 +22,8 @@ public class HMM {
     private ArrayList<TagData> tagDatas;//标签读数  
     private ArrayList<TagData>[] rawDatas;//用于初始插值的原始数据
     private boolean inited;//初始化标记
+    private int _n; //记录第几次更新
+    public ArrayList<Double>[] error_p1;//记录误差
 
     /**
      * 构造器(Constructor)
@@ -44,6 +46,11 @@ public class HMM {
         for (int i = 0; i < k; i++) {
             rawDatas[i] = new ArrayList<>();
         }
+        this._n = 1;
+        this.error_p1 = new ArrayList[3];
+        for(int i = 0; i < 3; i++){
+            error_p1[i] = new ArrayList<>();
+        }
     }
 
     /**
@@ -59,6 +66,7 @@ public class HMM {
                 tr.update(td);
             }//更新所有的卡尔曼滤波
             normalizeWeight();//对它们的权重归一化
+            // error_p();
         } else {
             init(td);//初始化
         }
@@ -90,8 +98,32 @@ public class HMM {
             for (EKF tr : trajectories) {
                 tr.update(tagDatas.get(i));
             }
+            normalizeWeight();//对权重归一化
+            // error_p();
+            /**
+            //寻找到最接近真实值的轨迹，并且将他与权重最高的轨迹进行比较
+            double min = Double.MAX_VALUE;
+            EKF tr_min = null;
+            for (EKF tr : trajectories) {
+                Coordinate c = tr.getTrajectory().get(tr.getTrajectory().size() - 1); //得到最新的坐标
+                double[] c_actual1 = tagDatas.get(i).getStateStamp();//得到真实坐标
+                Coordinate c_actual = new Coordinate(c_actual1[0], c_actual1[1], c_actual1[2]);
+                if (MyUtils.dist_c(c, c_actual) < min) {
+                    min = MyUtils.dist_c(c, c_actual);
+                    tr_min = tr;
+                }
+            }
+            int n = 0;
+            for(EKF tr:trajectories){
+                if(tr == tr_min){
+                    break;
+                }
+                else n++;
+            }
+            System.out.println(i+":"+n+"\n");
+             */
         }
-        normalizeWeight();//对权重归一化
+        //normalizeWeight();//对权重归一化
         inited = true;
         rawDatas = null;
     }
@@ -196,7 +228,7 @@ public class HMM {
             //启动对应的EKF
             trajectories.add(new EKF(e, observeDis));
         }
-        ArrayList<Coordinate> tr1 = getTrajectory();
+        //ArrayList<Coordinate> tr1 = getTrajectory();
         //权重归一化
         normalizeWeight();
     }
@@ -327,7 +359,8 @@ public class HMM {
                     if(tr.getWeight() < newList.get(i).getWeight()) i++;
                     else break;
                 }
-                newList.add(i , tr); //按顺序排列**/
+                newList.add(i , tr); //按顺序排列
+                 */
                 newList.add(tr);
             }
         }
@@ -381,7 +414,7 @@ public class HMM {
         }
         return picked.getVelocity();
     }
-    /*
+    /**
     private static double getActualVelocity(TagData p1, TagData p2, int i) {
         double d1 = MyUtils.dist(p1.getStateStamp()[0], p1.getStateStamp()[1], p1.getStateStamp()[2], Config.getX(i), Config.getY(i), Config.getZ(i));
         double d2 = MyUtils.dist(p2.getStateStamp()[0], p2.getStateStamp()[1], p2.getStateStamp()[2], Config.getX(i), Config.getY(i), Config.getZ(i));
@@ -390,4 +423,53 @@ public class HMM {
     }
 
      */
+
+    private void error_p(){
+        //寻找到最接近真实值的轨迹，并且将他与权重最高的轨迹进行比较
+        double min = Double.MAX_VALUE;
+        EKF tr_min = null;
+        for (EKF tr : trajectories) {
+            Coordinate c = tr.getTrajectory().get(tr.getTrajectory().size() - 1); //得到最新的坐标
+            double[] c_actual1 = tagDatas.get(tr.getTrajectory().size() - 1).getStateStamp();//得到真实坐标
+            Coordinate c_actual = new Coordinate(c_actual1[0], c_actual1[1], c_actual1[2]);
+            if (MyUtils.dist_c(c, c_actual) < min) {
+                min = MyUtils.dist_c(c, c_actual);
+                tr_min = tr;
+            }
+        }
+        int n = 1;
+        for(EKF tr:trajectories){
+            if(tr == tr_min){
+                break;
+            }
+            else n++;
+        }
+
+        Coordinate c1 = tr_min.getTrajectory().get(tr_min.getTrajectory().size() - 1); //得到最新的坐标
+        Coordinate c2 = this.trajectories.get(0).getTrajectory().get(tr_min.getTrajectory().size() - 1); //得到预测最优的值
+        double[] c3_ = tagDatas.get(tr_min.getTrajectory().size() - 1).getStateStamp();//得到真实坐标
+        Coordinate c3 = new Coordinate(c3_[0], c3_[1], c3_[2]);
+
+        error_p1[0].add((double) n);
+        error_p1[1].add(error_relative(c1, c3));
+        error_p1[2].add(error_relative(c2, c3));
+        System.out.println(_n+":"+n+"\n");
+        _n++;
+    }
+
+    private static void error_v(){
+        //TODO
+    }
+    /**
+     * 计算相对误差
+     * @param c1
+     * @param c2 两个坐标
+     * @return 相对误差
+     */
+    private static double error_relative(Coordinate c1, Coordinate c2){
+        double x = Math.abs(c1.getX() - c2.getX());
+        double y = Math.abs(c1.getY() - c2.getY());
+        double z = Math.abs(c1.getZ() - c2.getZ());
+        return Math.sqrt(x*x + y*y + z*z)/Math.sqrt(c2.getX()*c2.getX() + c2.getY()*c2.getY() + c2.getZ()*c2.getZ());
+    }
 }

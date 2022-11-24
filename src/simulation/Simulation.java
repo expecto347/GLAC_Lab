@@ -11,12 +11,16 @@ import glac.Config;
 import glac.Coordinate;
 import glac.TagData;
 import glac.HMM;
+import org.jfree.chart.ChartPanel;
+import utils.MyChart;
 import utils.MyRandom;
 import java.util.ArrayList;
-import org.apache.commons.lang3.tuple.Pair;
+// import org.apache.commons.lang3.tuple.Pair;
 import utils.MyUtils;
 
-import static myMain.myGUI_track.myGUI_track;
+import javax.swing.*;
+
+// import static myMain.myGUI_track.myGUI_track;
 
 /**
  * 仿真测试类，用于评估系统的各项性能。
@@ -47,7 +51,7 @@ public class Simulation {
             ArrayList<StateStamp> g = shape.generate();
             for (StateStamp s : g) {
                 double ph = genPhase(s.getStateVector().get(0, 0), s.getStateVector().get(1, 0), s.getStateVector().get(2, 0), i);//获得相位值，i是天线标号
-                /*
+
                 double[] x = new double[6];
                 x[0] = s.getStateVector().get(0, 0);
                 x[1] = s.getStateVector().get(1, 0);
@@ -56,9 +60,7 @@ public class Simulation {
                 x[4] = s.getStateVector().get(4, 0);
                 x[5] = s.getStateVector().get(5, 0);
 
-                 */
-
-                TagData td = new TagData(i, s.getTime(), ph);
+                TagData td = new TagData(i, s.getTime(), ph, x);
                 hmm.add(td);
                 i = (i + 1) % Config.getK();
             }
@@ -84,6 +86,40 @@ public class Simulation {
                 lists[2][i].add(e.get(0, i));
             }
         }
+        /**
+        //将hmm.error转换成ArrayList形式
+        ArrayList<Double>[] error_n = new ArrayList[1];
+        ArrayList<Double>[] error_p = new ArrayList[2];
+
+        error_n[0] = new ArrayList<>();
+        error_p[0] = new ArrayList<>();
+        error_p[1] = new ArrayList<>(); //initial
+
+        for (int i = 0; i < hmm.error_p1[0].size(); i++) {
+            error_n[0].add(hmm.error_p1[0].get(i));
+            error_p[0].add(hmm.error_p1[1].get(i));
+            error_p[1].add(hmm.error_p1[2].get(i));
+        }
+
+        JFrame nFrame = new JFrame("pFrame");
+        JFrame pFrame = new JFrame("vFrame");
+
+        ChartPanel nPanel = MyChart.error_p("最佳轨迹权重在所有轨迹的排名", "Update number", "n", new String[]{"n"}, error_n);
+        ChartPanel pPanel = MyChart.error_p("相对误差", "Update number", "相对误差", new String[]{"最准确位置的相对误差", "权重最高的轨迹的相对误差"}, error_p);
+        pPanel.setBounds(0, 0, 100, 100);
+        nPanel.setBounds(0, 1000, 100, 100);
+
+        pFrame.setContentPane(pPanel);
+        pFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        pFrame.pack();
+        pFrame.setVisible(true);
+
+        nFrame.setContentPane(nPanel);
+        nFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        nFrame.pack();
+        nFrame.setVisible(true);
+         */
+
         System.out.println("仿真结束");
         return lists;
     }

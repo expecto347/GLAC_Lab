@@ -144,4 +144,33 @@ public class MyChart {
     chart.getLegend().setItemFont(new Font("Helvetica",Font.PLAIN,20));
     return chartPanel;
     }
+    public static ChartPanel error_p(String title, String xLabel, String yLabel,String[] legends, ArrayList<Double>[] data) {
+        XYSeriesCollection dataset = new XYSeriesCollection();
+        int m = data.length;
+        for (int i = 0; i < m; i++) {
+            int n = data[i].size();
+            double x[] = new double[n + 1], y[] = new double[n + 1];
+            for (int j = 0; j < n; j++) {
+                y[j] = data[i].get(j);
+                x[j] = j + 1;
+            }
+            //组织数据
+            if (i < legends.length) {
+                dataset.addSeries(createXYSeries(legends[i], x, y));
+            } else {
+                dataset.addSeries(createXYSeries("Line" + i, x, y));
+            }
+        }
+        JFreeChart chart = ChartFactory.createXYLineChart(title, xLabel , yLabel, dataset);
+        ChartPanel chartPanel = new ChartPanel(chart);
+        // chart.getXYPlot().getDomainAxis().setUpperBound(41);//设置X轴范围
+        // chart.getXYPlot().getRangeAxis().setUpperBound(1.0);//设置Y轴范围
+        //设置字体
+        chart.getXYPlot().getDomainAxis().setLabelFont(new Font("Helvetica",Font.PLAIN,20));
+        chart.getXYPlot().getDomainAxis().setTickLabelFont(new Font("Helvetica",Font.PLAIN,18));
+        chart.getXYPlot().getRangeAxis().setLabelFont(new Font("Helvetica",Font.PLAIN,20));
+        chart.getXYPlot().getRangeAxis().setTickLabelFont(new Font("Helvetica",Font.PLAIN,18));
+        chart.getLegend().setItemFont(new Font("Helvetica",Font.PLAIN,20));
+        return chartPanel;
+    }
 }
