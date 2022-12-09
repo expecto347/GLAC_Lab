@@ -47,8 +47,8 @@ public class HMM {
             rawDatas[i] = new ArrayList<>();
         }
         this._n = 1;
-        this.error_p1 = new ArrayList[3];
-        for(int i = 0; i < 3; i++){
+        this.error_p1 = new ArrayList[4];
+        for(int i = 0; i < 4; i++){
             error_p1[i] = new ArrayList<>();
         }
     }
@@ -66,7 +66,7 @@ public class HMM {
                 tr.update(td);
             }//更新所有的卡尔曼滤波
             normalizeWeight();//对它们的权重归一化
-            // error_p();
+            error_p();
         } else {
             init(td);//初始化
         }
@@ -99,7 +99,7 @@ public class HMM {
                 tr.update(tagDatas.get(i));
             }
             normalizeWeight();//对权重归一化
-            // error_p();
+            error_p();
             /**
             //寻找到最接近真实值的轨迹，并且将他与权重最高的轨迹进行比较
             double min = Double.MAX_VALUE;
@@ -346,13 +346,12 @@ public class HMM {
      */
     private void normalizeWeight() {
         ArrayList<EKF> newList = new ArrayList<>();
-        // double len;
-        // int i;
+        double len;
+        int i;
         double total = 0;
         for (EKF tr : trajectories) {
             if (tr.getWeight() > Config.getStopThreshold()) {
                 total += tr.getWeight();
-                /**
                 len = newList.size();
                 i = 0;
                 while(i < len){
@@ -360,8 +359,7 @@ public class HMM {
                     else break;
                 }
                 newList.add(i , tr); //按顺序排列
-                 */
-                newList.add(tr);
+                // newList.add(tr);
             }
         }
         trajectories = newList;
@@ -428,17 +426,19 @@ public class HMM {
         //寻找到最接近真实值的轨迹，并且将他与权重最高的轨迹进行比较
         double min = Double.MAX_VALUE;
         EKF tr_min = null;
+
         for (EKF tr : trajectories) {
             Coordinate c = tr.getTrajectory().get(tr.getTrajectory().size() - 1); //得到最新的坐标
             double[] c_actual1 = tagDatas.get(tr.getTrajectory().size() - 1).getStateStamp();//得到真实坐标
             Coordinate c_actual = new Coordinate(c_actual1[0], c_actual1[1], c_actual1[2]);
-            if (MyUtils.dist_c(c, c_actual) < min) {
+            if (MyUtils.dist_c(c, c_actual) < min) { // 找到最接近真实值的轨迹
                 min = MyUtils.dist_c(c, c_actual);
                 tr_min = tr;
             }
         }
+
         int n = 1;
-        for(EKF tr:trajectories){
+        for(EKF tr:trajectories){ // 找到权重最高的轨迹
             if(tr == tr_min){
                 break;
             }
@@ -447,13 +447,14 @@ public class HMM {
 
         Coordinate c1 = tr_min.getTrajectory().get(tr_min.getTrajectory().size() - 1); //得到最新的坐标
         Coordinate c2 = this.trajectories.get(0).getTrajectory().get(tr_min.getTrajectory().size() - 1); //得到预测最优的值
-        double[] c3_ = tagDatas.get(tr_min.getTrajectory().size() - 1).getStateStamp();//得到真实坐标
+        double[] c3_ = tagDatas.get(tr_min.getTrajectory().size() - 1).getStateStamp(); //得到真实坐标
         Coordinate c3 = new Coordinate(c3_[0], c3_[1], c3_[2]);
 
         error_p1[0].add((double) n);
-        error_p1[1].add(error_relative(c1, c3));
+        error_p1[1].add(error_relative(c1, c3)); // 计算相对误差
         error_p1[2].add(error_relative(c2, c3));
-        System.out.println(_n+":"+n+"\n");
+        error_p1[3].add(error_absolute(c1, c2)); // 计算预测的值和Grand Choice的值的绝对误差
+        // System.out.println(_n+":"+n+"\n");
         _n++;
     }
 
@@ -471,5 +472,18 @@ public class HMM {
         double y = Math.abs(c1.getY() - c2.getY());
         double z = Math.abs(c1.getZ() - c2.getZ());
         return Math.sqrt(x*x + y*y + z*z)/Math.sqrt(c2.getX()*c2.getX() + c2.getY()*c2.getY() + c2.getZ()*c2.getZ());
+    }
+
+    /**
+     * 计算绝对误差
+     * @param c1
+     * @param c2 两个坐标
+     * @return 绝对误差
+     */
+    private static double error_absolute(Coordinate c1, Coordinate c2) {
+        double x = Math.abs(c1.getX() - c2.getX());
+        double y = Math.abs(c1.getY() - c2.getY());
+        double z = Math.abs(c1.getZ() - c2.getZ());
+        return Math.sqrt(x * x + y * y + z * z);
     }
 }

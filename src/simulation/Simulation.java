@@ -29,8 +29,10 @@ import javax.swing.*;
  */
 public class Simulation {
 
-    static double sigma = 0.01;//仿真生成的相位的标准差
-    static MyRandom random = new MyRandom();//随机数生成器
+    static double sigma = 0.01; //仿真生成的相位的标准差
+    static MyRandom random = new MyRandom(); //随机数生成器
+
+    static public ArrayList<Double> xList = new ArrayList<>();
 
     public static ArrayList<Double>[][] track(Shape shape) {
         ArrayList<Double>[][] lists = new ArrayList[3][4];
@@ -40,12 +42,11 @@ public class Simulation {
             }
         } //初始化List
 
-
         HMM hmm = new HMM();
-        for (int t = 0; t < 500; t++) {
-            System.out.print("正在进行第");
-            System.out.print(t+1);
-            System.out.println("次仿真");
+        for (int t = 0; t < 2; t++) {
+            // System.out.print("正在进行第");
+            // System.out.print(t+1);
+            // System.out.println("次仿真");
             hmm.clear();
             int i = 0;
             ArrayList<StateStamp> g = shape.generate();
@@ -85,7 +86,15 @@ public class Simulation {
             for(i = 0; i < 4; i++) {
                 lists[2][i].add(e.get(0, i));
             }
+
+            for (i = 0; i < hmm.error_p1[3].size(); i++) { //获得相对误差
+                xList.add(hmm.error_p1[3].get(i));
+            }
         }
+
+        // Plot the CDF of the Xlist
+        JFrame Frame = new JFrame("Frame");
+        String[] legends = {"Absolute Error"};
         /**
         //将hmm.error转换成ArrayList形式
         ArrayList<Double>[] error_n = new ArrayList[1];
