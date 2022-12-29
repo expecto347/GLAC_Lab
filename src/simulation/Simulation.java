@@ -20,7 +20,6 @@ import utils.MyUtils;
 
 import javax.swing.*;
 
-// import static myMain.myGUI_track.myGUI_track;
 
 /**
  * 仿真测试类，用于评估系统的各项性能。
@@ -42,25 +41,27 @@ public class Simulation {
             }
         } //初始化List
 
+        int error = 0;
+        int simulate_times = 100;
         HMM hmm = new HMM();
-        for (int t = 0; t < 2; t++) {
-            // System.out.print("正在进行第");
-            // System.out.print(t+1);
-            // System.out.println("次仿真");
+        for (int t = 0; t < simulate_times; t++) {
+            System.out.print("正在进行第");
+            System.out.print(t+1);
+            System.out.println("次仿真");
             hmm.clear();
             int i = 0;
             ArrayList<StateStamp> g = shape.generate();
             for (StateStamp s : g) {
-                double ph = genPhase(s.getStateVector().get(0, 0), s.getStateVector().get(1, 0), s.getStateVector().get(2, 0), i);//获得相位值，i是天线标号
-
-                double[] x = new double[6];
+                double ph1[] = genPhase(s.getStateVector().get(0, 0), s.getStateVector().get(1, 0), s.getStateVector().get(2, 0), i);//获得相位值，i是天线标号
+                double ph = ph1[0];
+                double[] x = new double[7];
                 x[0] = s.getStateVector().get(0, 0);
                 x[1] = s.getStateVector().get(1, 0);
                 x[2] = s.getStateVector().get(2, 0);
                 x[3] = s.getStateVector().get(3, 0);
                 x[4] = s.getStateVector().get(4, 0);
                 x[5] = s.getStateVector().get(5, 0);
-
+                x[6] = Math.abs(ph1[1] - ph1[0]) / ph1[1]; // 相对误差
                 TagData td = new TagData(i, s.getTime(), ph, x);
                 hmm.add(td);
                 i = (i + 1) % Config.getK();
@@ -90,12 +91,15 @@ public class Simulation {
             for (i = 0; i < hmm.error_p1[3].size(); i++) { //获得相对误差
                 xList.add(hmm.error_p1[3].get(i));
             }
+            error += hmm.number_error;
+            // System.out.println(error);
         }
 
+        System.out.println(error);
+        /**
         // Plot the CDF of the Xlist
         JFrame Frame = new JFrame("Frame");
         String[] legends = {"Absolute Error"};
-        /**
         //将hmm.error转换成ArrayList形式
         ArrayList<Double>[] error_n = new ArrayList[1];
         ArrayList<Double>[] error_p = new ArrayList[2];
@@ -162,11 +166,13 @@ public class Simulation {
      * @param ano 天线标号
      * @return 相位
      */
-    private static double genPhase(double x, double y, double z, int ano) {
+    private static double[] genPhase(double x, double y, double z, int ano) {
         double d = -MyUtils.dist(x, y, z, Config.getX(ano), Config.getY(ano), Config.getZ(ano)) * 2; //两倍的天线和tag的距离，负号的作用
-        double phase;
-        phase = random.nextGaussian(d * Math.PI / Config.getSemiLambda(), sigma);
-        phase = phase - Math.floor(phase / Math.PI) * Math.PI; //mod pi
+        double phase[] = new double[2];
+        phase[0] = random.nextGaussian(d * Math.PI / Config.getSemiLambda(), sigma);
+        phase[0] = phase[0] - Math.floor(phase[0] / Math.PI) * Math.PI; //mod pi
+        phase[1] = d * Math.PI / Config.getSemiLambda();
+        phase[1] = phase[1] - Math.floor(phase[1] / Math.PI) * Math.PI; //mod pi
         return phase;
     }
 

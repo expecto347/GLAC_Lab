@@ -6,8 +6,12 @@
 package glac;
 
 import Jama.Matrix;
+
+import java.io.File;
 import java.util.ArrayList;
 import utils.MyUtils;
+
+import static java.lang.Math.pow;
 
 /**
  * A Hidden Markov Model used to describe the trajectory tracking.<br>
@@ -24,6 +28,11 @@ public class HMM {
     private boolean inited;//初始化标记
     private int _n; //记录第几次更新
     public ArrayList<Double>[] error_p1;//记录误差
+    public int number_error;
+
+    private double weight_v = 0.5; // 设置一个速度的权重， 其中0<=weight<=1
+
+    private double t = 0.5; // 设置历史轨迹的权重，其中 0<=t<=1
 
     /**
      * 构造器(Constructor)
@@ -51,6 +60,7 @@ public class HMM {
         for(int i = 0; i < 4; i++){
             error_p1[i] = new ArrayList<>();
         }
+        this.number_error = 0;
     }
 
     /**
@@ -67,6 +77,7 @@ public class HMM {
             }//更新所有的卡尔曼滤波
             normalizeWeight();//对它们的权重归一化
             error_p();
+            // error_sum();
         } else {
             init(td);//初始化
         }
@@ -100,6 +111,7 @@ public class HMM {
             }
             normalizeWeight();//对权重归一化
             error_p();
+            // error_sum();
             /**
             //寻找到最接近真实值的轨迹，并且将他与权重最高的轨迹进行比较
             double min = Double.MAX_VALUE;
@@ -454,11 +466,47 @@ public class HMM {
         error_p1[1].add(error_relative(c1, c3)); // 计算相对误差
         error_p1[2].add(error_relative(c2, c3));
         error_p1[3].add(error_absolute(c1, c2)); // 计算预测的值和Grand Choice的值的绝对误差
-        // System.out.println(_n+":"+n+"\n");
+        // System.out.print(_n+":"+n);
+        error_sum();
         _n++;
     }
 
-    private static void error_v(){
+    /**
+     * 就算出包含历史轨迹，当前速度的各种误差
+     */
+    private void error_sum(){
+        double[] error_sum = new double[trajectories.size()]; // 记录每一个轨迹的误差
+        int n = 0;
+        for(EKF tr:trajectories){
+            for(int i = tr.getTrajectory().size() - 1; i >=0; i--){
+                Coordinate c1 = tr.getTrajectory().get(i); //得到最新的坐标
+                double[] c3_ = tagDatas.get(i).getStateStamp(); //得到真实坐标
+                Coordinate c3 = new Coordinate(c3_[0], c3_[1], c3_[2]);
+                error_sum[n] += pow(t, tr.getTrajectory().size() - 1 - i) * error_relative(c1, c3);
+            }
+            double[] c_ = tagDatas.get(tr.getTrajectory().size() - 1).getStateStamp(); //得到真实坐标
+            Coordinate v = new Coordinate(c_[3], c_[4], c_[5]);
+            error_sum[n] = (1 - weight_v) * error_sum[n] + weight_v * error_relative(tr.getVelocity().get(tr.getVelocity().size() - 1), v);
+            n++;
+        }
+        // 找到最小的误差
+        double min = Double.MAX_VALUE;
+        for(int i = 0; i < error_sum.length; i++){
+            if(error_sum[i] < min){
+                min = error_sum[i];
+                n = i;
+            }
+        }
+        if(n != 0){
+            number_error++;
+        }
+        // System.out.println(" sum:"+(n+1)+ " observation error: " +tagDatas.get(trajectories.get(0).getTrajectory().size() - 1).getStateStamp()[6] +"\n");
+    }
+
+    /**
+     * 导出轨迹位置到csv文件
+     */
+    private static void exportTrajectory(EKF tr){
         //TODO
     }
     /**

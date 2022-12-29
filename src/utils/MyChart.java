@@ -11,6 +11,9 @@ import org.jfree.chart.JFreeChart;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
 
+import javax.swing.*;
+
+
 /**
  *
  * @author Wang
@@ -66,45 +69,6 @@ public class MyChart {
         chart.getXYPlot().getRangeAxis().setLabelFont(new Font("Helvetica",Font.PLAIN,20));
         chart.getXYPlot().getRangeAxis().setTickLabelFont(new Font("Helvetica",Font.PLAIN,18));
         chart.getLegend().setItemFont(new Font("Helvetica",Font.PLAIN,20));   
-        return chartPanel;
-    }
-
-    public static ChartPanel track_plot(String title, ArrayList<Pair<Double, Double>> tr) {
-        XYSeriesCollection dataset = new XYSeriesCollection();
-
-        double x[] = new double[tr.size()];
-        double y[] = new double[tr.size()];
-
-        double max_x = tr.get(0).getLeft();
-        double min_x = tr.get(0).getLeft();
-
-        double max_y = tr.get(0).getRight();
-        double min_y = tr.get(0).getRight();
-
-        for (int i = 0; i < tr.size(); i++) {
-            x[i] = tr.get(i).getLeft();
-            y[i] = tr.get(i).getRight();
-            if(x[i] > max_x) max_x = x[i];
-            if(x[i] < min_x) min_x = x[i];
-            if(y[i] > max_y) max_y = y[i];
-            if(y[i] < min_y) min_y = y[i];
-        }
-
-        dataset.addSeries(createXYSeries("track", x, y));
-
-        JFreeChart chart = ChartFactory.createScatterPlot(title, "x", "y", dataset);
-        ChartPanel chartPanel = new ChartPanel(chart);
-        chart.getXYPlot().getDomainAxis().setUpperBound(max_x);
-        chart.getXYPlot().getDomainAxis().setLowerBound(min_x);//设置X轴范围
-        chart.getXYPlot().getRangeAxis().setUpperBound(max_y);//设置Y轴范围
-        chart.getXYPlot().getRangeAxis().setLowerBound(min_y);//设置Y轴范围
-        //设置字体
-        chart.getXYPlot().getDomainAxis().setLabelFont(new Font("Helvetica", Font.PLAIN, 20));
-        chart.getXYPlot().getDomainAxis().setTickLabelFont(new Font("Helvetica", Font.PLAIN, 18));
-        chart.getXYPlot().getRangeAxis().setLabelFont(new Font("Helvetica", Font.PLAIN, 20));
-        chart.getXYPlot().getRangeAxis().setTickLabelFont(new Font("Helvetica", Font.PLAIN, 18));
-        chart.getLegend().setItemFont(new Font("Helvetica", Font.PLAIN, 20));
-
         return chartPanel;
     }
 
