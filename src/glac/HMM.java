@@ -7,7 +7,7 @@ package glac;
 
 import Jama.Matrix;
 
-import java.io.File;
+//import java.io.File;
 import java.util.ArrayList;
 import utils.MyUtils;
 
@@ -22,7 +22,7 @@ import static java.lang.Math.pow;
  */
 public class HMM {
 
-    private ArrayList<EKF> trajectories;//轨迹
+    public ArrayList<EKF> trajectories;//轨迹
     private ArrayList<TagData> tagDatas;//标签读数  
     private ArrayList<TagData>[] rawDatas;//用于初始插值的原始数据
     private boolean inited;//初始化标记
@@ -30,7 +30,7 @@ public class HMM {
     public ArrayList<Double>[] error_p1;//记录误差
     public int number_error;
 
-    private double weight_v = 0.5; // 设置一个速度的权重， 其中0<=weight<=1
+    private final double weight_v = 0.5; // 设置一个速度的权重， 其中0<=weight<=1
 
     private double t = 0.5; // 设置历史轨迹的权重，其中 0<=t<=1
 
@@ -55,12 +55,12 @@ public class HMM {
         for (int i = 0; i < k; i++) {
             rawDatas[i] = new ArrayList<>();
         }
-        this._n = 1;
-        this.error_p1 = new ArrayList[4];
-        for(int i = 0; i < 4; i++){
-            error_p1[i] = new ArrayList<>();
-        }
-        this.number_error = 0;
+//        this._n = 1;
+//        this.error_p1 = new ArrayList[4];
+//        for(int i = 0; i < 4; i++){
+//            error_p1[i] = new ArrayList<>();
+//        }
+//        this.number_error = 0;
     }
 
     /**
@@ -74,10 +74,11 @@ public class HMM {
         if (inited) {
             for (EKF tr : trajectories) {
                 tr.update(td);
-            }//更新所有的卡尔曼滤波
+            }
+            //更新所有的卡尔曼滤波
             normalizeWeight();//对它们的权重归一化
-            error_p();
-            // error_sum();
+//            error_p();
+//            error_sum();
         } else {
             init(td);//初始化
         }
@@ -110,8 +111,8 @@ public class HMM {
                 tr.update(tagDatas.get(i));
             }
             normalizeWeight();//对权重归一化
-            error_p();
-            // error_sum();
+//            error_p();
+//            error_sum();
             /**
             //寻找到最接近真实值的轨迹，并且将他与权重最高的轨迹进行比较
             double min = Double.MAX_VALUE;
@@ -263,10 +264,52 @@ public class HMM {
                             for (int s2 = 0; s2 <= Config.getMaxS(); s2++) {//天线2对应的整数波长
                                 for (int s3 = 0; s3 <= Config.getMaxS(); s3++) {//天线3对应的整数波长
                                     for (int s4 = 0; s4 <= Config.getMaxS(); s4++) {//天线4对应的整数波长
+//                                        if(s1 == 7 && s2 == 7 && s3 == 7 && s4 == 7){
+//                                             System.out.print("observeDis: ");
+//                                            for(int i = 0; i < observeDis.length; i++){
+//                                                System.out.print(observeDis[i]);
+//                                                System.out.print(" ");
+//                                            }
+//                                            System.out.print("\n");
+//                                            System.out.print("s1: " + s1 + " a1 :" + a1);
+//                                            System.out.print(" distance: ");
+//                                            System.out.println((observeDis[a1] + s1 * Config.getSemiLambda())/2);
+//                                            System.out.print("s2: " + s2 + " a2 :" + a2);
+//                                            System.out.print(" distance: ");
+//                                            System.out.println((observeDis[a2] + s2 * Config.getSemiLambda())/2);
+//                                            System.out.print("s3: " + s3 + " a3 :" + a3);
+//                                            System.out.print(" distance: ");
+//                                            System.out.println((observeDis[a3] + s3 * Config.getSemiLambda())/2);
+//                                            System.out.print("s4: " + s4 + " a4 :" + a4);
+//                                            System.out.print(" distance: ");
+//                                            System.out.println((observeDis[a4] + s4 * Config.getSemiLambda())/2);
+//                                        }
                                         Coordinate p = Trilateration.Trilateration(a1, a2, a3, a4,(observeDis[a1] + s1 * Config.getSemiLambda())/2,
                                                 (observeDis[a2] + s2 * Config.getSemiLambda())/2, (observeDis[a3] + s3 * Config.getSemiLambda())/2,
                                                 (observeDis[a4] + s4 * Config.getSemiLambda())/2);
                                         if (p != null) {
+                                            Coordinate actual_pos = new Coordinate(30, 30, 30);
+//                                            if(glac.MyUtils.dist_c(p, actual_pos) <= 1){
+                                                //print observeDis
+//                                                System.out.print("observeDis: ");
+//                                                for(int i = 0; i < observeDis.length; i++){
+//                                                    System.out.print(observeDis[i]);
+//                                                    System.out.print(" ");
+//                                                }
+//                                                System.out.print("\n");
+//                                                System.out.print("s1: " + s1 + " a1 :" + a1);
+//                                                System.out.print(" distance: ");
+//                                                System.out.println((observeDis[a1] + s1 * Config.getSemiLambda())/2);
+//                                                System.out.print("s2: " + s2 + " a2 :" + a2);
+//                                                System.out.print(" distance: ");
+//                                                System.out.println((observeDis[a2] + s2 * Config.getSemiLambda())/2);
+//                                                System.out.print("s3: " + s3 + " a3 :" + a3);
+//                                                System.out.print(" distance: ");
+//                                                System.out.println((observeDis[a3] + s3 * Config.getSemiLambda())/2);
+//                                                System.out.print("s4: " + s4 + " a4 :" + a4);
+//                                                System.out.print(" distance: ");
+//                                                System.out.println((observeDis[a4] + s4 * Config.getSemiLambda())/2);
+//                                            }
                                             initPos.add(p);
                                         }
                                     }
@@ -314,27 +357,26 @@ public class HMM {
      * @param y 用于拟合的y值列表
      * @param z 用于拟合的z值列表
      * @return 拟合得到的参数(a,b,c)
+     **/
 
-    private Coordinate leastSquares(double x[], double y[], double z[]){
-        double a = 0, b = 0, c = 0;
-        double sumx = 0, sumy = 0, sumz = 0, sumxy = 0, sumxz = 0, sumyz = 0, sumx2 = 0, sumy2 = 0;
-        for (int i = 0; i < x.length; i++) {
-            sumx += x[i];
-            sumy += y[i];
-            sumz += z[i];
-            sumxy += x[i] * y[i];
-            sumxz += x[i] * z[i];
-            sumyz += y[i] * z[i];
-            sumx2 += x[i] * x[i];
-            sumy2 += y[i] * y[i];
-        }
-        a = (sumx * sumy * sumz - sumx * sumyz - sumy * sumxz + sumz * sumxy) / (sumx * sumx * sumy - sumx * sumxy - sumy * sumx2 + sumxy * sumxy);
-        b = (sumx * sumy * sumz - sumx * sumyz - sumy * sumxz + sumz * sumxy) / (sumx * sumx * sumy - sumx * sumxy - sumy * sumx2 + sumxy * sumxy);
-        c = (sumz - a * sumx - b * sumy) / x.length;
-        return new Coordinate(a, b, c);
-    }
-
-    */
+//    private Coordinate leastSquares(double x[], double y[], double z[]){
+//        double a = 0, b = 0, c = 0;
+//        double sumx = 0, sumy = 0, sumz = 0, sumxy = 0, sumxz = 0, sumyz = 0, sumx2 = 0, sumy2 = 0;
+//        for (int i = 0; i < x.length; i++) {
+//            sumx += x[i];
+//            sumy += y[i];
+//            sumz += z[i];
+//            sumxy += x[i] * y[i];
+//            sumxz += x[i] * z[i];
+//            sumyz += y[i] * z[i];
+//            sumx2 += x[i] * x[i];
+//            sumy2 += y[i] * y[i];
+//        }
+//        a = (sumx * sumy * sumz - sumx * sumyz - sumy * sumxz + sumz * sumxy) / (sumx * sumx * sumy - sumx * sumxy - sumy * sumx2 + sumxy * sumxy);
+//        b = (sumx * sumy * sumz - sumx * sumyz - sumy * sumxz + sumz * sumxy) / (sumx * sumx * sumy - sumx * sumxy - sumy * sumx2 + sumxy * sumxy);
+//        c = (sumz - a * sumx - b * sumy) / x.length;
+//        return new Coordinate(a, b, c);
+//    }
 
 
     /**
@@ -358,6 +400,7 @@ public class HMM {
      */
     private void normalizeWeight() {
         ArrayList<EKF> newList = new ArrayList<>();
+        ArrayList<EKF> newList_1 = new ArrayList<>();
         double len;
         int i;
         double total = 0;
@@ -371,11 +414,12 @@ public class HMM {
                     else break;
                 }
                 newList.add(i , tr); //按顺序排列
-                // newList.add(tr);
+//                newList.add(tr);
             }
         }
-        trajectories = newList;
-        for (EKF tr : newList) {
+        newList_1.add(newList.get(0));
+        trajectories = newList_1;
+        for (EKF tr : newList_1) {
             tr.setWeight(tr.getWeight() / total);
         }
     } //归一化，并对权重过小的轨迹剪枝
@@ -384,22 +428,25 @@ public class HMM {
      * 获取权重最大的运动轨迹<br>
      * Get the trajectory with the highest probability
      *
+     * @param i 权重为第i的轨迹
      * @return 运动轨迹(The trajectory)
      */
-    public ArrayList<Coordinate> getTrajectory() {
+    public ArrayList<Coordinate> getTrajectory(int i) {
         if (trajectories.isEmpty()) {
             return null;
         }
-        //找到权重最大的轨迹
-        EKF picked = null;
-        double max = 0;
-        for (EKF tr : trajectories) {
-            if (tr.getWeight() > max) {
-                max = tr.getWeight();
-                picked = tr;
-            }
-        }
-        return picked.getTrajectory();
+
+//        //找到权重最大的轨迹
+//        EKF picked = null;
+//        double max = 0;
+//        for (EKF tr : trajectories) {
+//            if (tr.getWeight() > max) {
+//                max = tr.getWeight();
+//                picked = tr;
+//            }
+//        }
+
+        return trajectories.get(i).getTrajectory();
     }
 
     /**
@@ -441,7 +488,7 @@ public class HMM {
 
         for (EKF tr : trajectories) {
             Coordinate c = tr.getTrajectory().get(tr.getTrajectory().size() - 1); //得到最新的坐标
-            double[] c_actual1 = tagDatas.get(tr.getTrajectory().size() - 1).getStateStamp();//得到真实坐标
+            double[] c_actual1 = tagDatas.get(tr.getTrajectory().size() - 1).getStateStamp(); //得到真实坐标
             Coordinate c_actual = new Coordinate(c_actual1[0], c_actual1[1], c_actual1[2]);
             if (MyUtils.dist_c(c, c_actual) < min) { // 找到最接近真实值的轨迹
                 min = MyUtils.dist_c(c, c_actual);
@@ -466,7 +513,7 @@ public class HMM {
         error_p1[1].add(error_relative(c1, c3)); // 计算相对误差
         error_p1[2].add(error_relative(c2, c3));
         error_p1[3].add(error_absolute(c1, c2)); // 计算预测的值和Grand Choice的值的绝对误差
-        // System.out.print(_n+":"+n);
+        System.out.print(_n+":"+n);
         error_sum();
         _n++;
     }
@@ -500,7 +547,7 @@ public class HMM {
         if(n != 0){
             number_error++;
         }
-        // System.out.println(" sum:"+(n+1)+ " observation error: " +tagDatas.get(trajectories.get(0).getTrajectory().size() - 1).getStateStamp()[6] +"\n");
+        System.out.println(" sum:" + (n+1) + "\n");
     }
 
     /**

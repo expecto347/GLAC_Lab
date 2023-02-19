@@ -73,4 +73,8 @@ class MyUtils {
         return Math.sqrt((x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2) + (z1 - z2) * (z1 - z2));
     }
 
+    public static double dist_c(Coordinate x, Coordinate y) {
+        return dist(x.getX(), x.getY(), x.getZ(), y.getX(), y.getY(), y.getZ());
+    }
+
 }
