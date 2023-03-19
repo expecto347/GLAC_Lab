@@ -48,7 +48,7 @@ public class Simulation {
         } //初始化List
 
         int error = 0;
-        int simulate_times = 1000;
+        int simulate_times = 100;
         HMM hmm = new HMM();
         for (int t = 0; t < simulate_times; t++) {
             System.out.print("正在进行第");
@@ -57,12 +57,11 @@ public class Simulation {
             hmm.clear();
             int i = 0;
             ArrayList<StateStamp> g = shape.generate();
-            genPhase_file("output.txt", g);
-            BufferedReader reader = new BufferedReader(new java.io.FileReader("output.txt"));
+//            genPhase_file("output.txt", g);
+//            BufferedReader reader = new BufferedReader(new java.io.FileReader("output.txt"));
             for (StateStamp s : g) {
-                String line = reader.readLine();
-                String[] str = line.split(",");
-                double ph = Double.valueOf(str[0]);
+                double ph1[] = genPhase(s.getStateVector().get(0, 0), s.getStateVector().get(1, 0), s.getStateVector().get(2, 0), i);//获得相位值，i是天线标号
+                double ph = ph1[0];
                 double[] x = new double[7];
                 x[0] = s.getStateVector().get(0, 0);
                 x[1] = s.getStateVector().get(1, 0);
@@ -70,7 +69,7 @@ public class Simulation {
                 x[3] = s.getStateVector().get(3, 0);
                 x[4] = s.getStateVector().get(4, 0);
                 x[5] = s.getStateVector().get(5, 0);
-                // x[6] = Math.abs(Double.valueOf(str[1]); - ph1[0]) / ph1[1]; // 相对误差
+                x[6] = Math.abs(ph1[1] - ph1[0]) / ph1[1]; // 相对误差
                 TagData td = new TagData(i, s.getTime(), ph, x);
                 hmm.add(td);
                 i = (i + 1) % Config.getK();

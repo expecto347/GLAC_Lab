@@ -18,11 +18,15 @@ public class Circle extends Shape {
 
     double r;
     double w;
+    double h;
+    double v_z;
     long time;
 
-    public Circle(double r, double w, long time) {
+    public Circle(double r, double w, double h, double v_z, long time) {
         this.r = r;
         this.w = w;
+        this.h = h;
+        this.v_z = v_z;
         this.time = time;
     }
 
@@ -37,14 +41,16 @@ public class Circle extends Shape {
         ArrayList<StateStamp> statelist = new ArrayList<>();
         double x0 = random.nextDouble(30, 80);
         double y0 = random.nextDouble(30, 80);
-        double x = x0 + r, y = y0, th = 0;
+        double z0 = h;
+        double x = x0 + r, y = y0, z = z0, th = 0;
         double ww = w / 180.0 * Math.PI;//角度制转为弧度制
         for (long t = 0; t <= time; t += 25) {
-            double mat[][] = {{x}, {y}, {-ww * r * Math.sin(th)}, {ww * r * Math.cos(th)}};
+            double mat[][] = {{x}, {y}, {z}, {-ww * r * Math.sin(th)}, {ww * r * Math.cos(th)}, {v_z}};
             statelist.add(new StateStamp(t, new Matrix(mat), null));
             th = th + ww / 40.0;
             x = x0 + r * Math.cos(th);
             y = y0 + r * Math.sin(th);
+            z = z0 + v_z * t / 1000.0;
         }
         return statelist;
     }
